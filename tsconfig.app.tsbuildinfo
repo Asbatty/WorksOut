@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/router.tsx","./src/screens/calendar.tsx","./src/screens/editor.tsx","./src/screens/exercise.tsx","./src/screens/history.tsx","./src/screens/sessionview.tsx","./src/screens/settings.tsx","./src/screens/today.tsx"],"version":"5.9.3"}
