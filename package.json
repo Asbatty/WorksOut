@@ -6,7 +6,8 @@
   "description": "Personal hypertrophy workout tracker (PWA)",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "validate": "node scripts/validate-routine.mjs",
+    "build": "node scripts/validate-routine.mjs && tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
