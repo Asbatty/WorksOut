@@ -516,3 +516,121 @@ button.ghost.small,
   border-radius: 6px;
   padding: 2px 5px;
 }
+
+/* ---- Exercise screen ---- */
+.back-link {
+  background: none;
+  border: none;
+  padding: 8px 0;
+  min-height: 40px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0;
+}
+.chip.strong {
+  color: var(--text);
+  border-color: var(--accent);
+}
+.cue {
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 12px;
+  line-height: 1.5;
+}
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+}
+.history-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+.history-date {
+  background: none;
+  border: none;
+  padding: 0;
+  min-height: 0;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.history-sets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.set-pill {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+.history-note {
+  flex-basis: 100%;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-style: italic;
+}
+.alt-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.alt-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  background: var(--surface);
+}
+
+/* ---- Chart ---- */
+.chart {
+  width: 100%;
+  height: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 8px 0;
+  display: block;
+}
+.chart-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.chart-axis {
+  fill: var(--text-dim);
+  font-size: 9px;
+}
+.chart-line {
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.chart-dot {
+  fill: var(--accent);
+}
