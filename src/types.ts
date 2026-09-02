@@ -100,6 +100,7 @@ export interface Routine {
 export interface SetLog {
   weight: number;
   reps: number;
+  done?: boolean; // user ticked this set off during the workout
 }
 
 export interface ExerciseLog {
