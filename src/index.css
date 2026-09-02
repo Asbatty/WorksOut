@@ -610,6 +610,103 @@ button.ghost.small,
   background: var(--surface);
 }
 
+.block {
+  display: block;
+}
+.ex-name.small {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.session-sets {
+  margin-top: 8px;
+}
+
+/* ---- Calendar ---- */
+.cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cal-head h1 {
+  font-size: 1.2rem;
+  text-align: center;
+  flex: 1;
+}
+.cal-head button {
+  min-width: 44px;
+  font-size: 1.3rem;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-top: 8px;
+}
+.cal-weekdays {
+  margin-top: 12px;
+}
+.cal-weekday {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  padding: 2px 0;
+}
+.cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+  padding: 4px 0 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  min-height: 0;
+  color: var(--text-dim);
+}
+.cal-cell.empty {
+  background: transparent;
+  border-color: transparent;
+}
+.cal-cell:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.cal-cell.has-session {
+  color: var(--text);
+  border-color: var(--accent);
+}
+.cal-cell.today {
+  outline: 2px solid var(--text-dim);
+  outline-offset: -1px;
+}
+.cal-daynum {
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+.cal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.cal-dot.inline {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.cal-tag {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--accent);
+}
+.cal-legend {
+  margin-top: 14px;
+}
+
 /* ---- Chart ---- */
 .chart {
   width: 100%;
