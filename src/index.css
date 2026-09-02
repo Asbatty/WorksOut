@@ -243,6 +243,11 @@ button.ghost {
   font-size: 0.82rem;
   font-weight: 600;
 }
+.suggest-reason {
+  margin-top: 4px;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
 
 .card.exercise {
   padding: 12px 12px 4px;

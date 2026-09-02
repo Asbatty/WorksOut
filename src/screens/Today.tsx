@@ -148,6 +148,7 @@ function PlannedDay({ routine }: { routine: Routine }) {
                     {r.suggestion.isGuess ? "suggested" : "target"}
                   </span>
                 </div>
+                <div className="suggest-reason">{r.suggestion.reason}</div>
                 {r.warmup && <div className="warmup-note">Warm up first</div>}
               </div>
             )
@@ -325,6 +326,17 @@ function ActiveWorkout({ routine, session }: { routine: Routine; session: Sessio
                   <span className="swapped-tag">swapped</span>
                 )}
               </div>
+
+              {suggestion && isOpen && (
+                <div className="suggest-reason">
+                  {suggestion.reason}
+                  {suggestion.repTarget === "repMin" && slot
+                    ? ` · aim for ${slot.repMin} reps`
+                    : suggestion.repTarget === "beat-last"
+                      ? " · beat last time"
+                      : ""}
+                </div>
+              )}
 
               {warmups.has(exIndex) && !allDone && (
                 <div className="warmup-note">Warm up first — these sets aren't logged</div>

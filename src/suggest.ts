@@ -8,8 +8,8 @@
 //   - BW = the profile's bodyweight in lb.
 //   - rep range = the slot's repMin..repMax.
 
-import type { Exercise, Profile, ProgramSlot } from "./types";
-import { averageReps, type HistoryEntry } from "./history";
+import type { Exercise, Profile, ProgramSlot, SetLog } from "./types";
+import { averageReps, isWorkingSet, type HistoryEntry } from "./history";
 
 // --- rounding ---------------------------------------------------------------
 
@@ -59,7 +59,7 @@ export function correctAfterFirstSession(
   return w; // about right
 }
 
-// --- double progression (build-plan section 6, added in phase 5) ----------
+// --- double progression (build-plan section 6) ---------------------------
 
 export interface WeightSuggestion {
   weight: number;
@@ -71,12 +71,26 @@ export interface WeightSuggestion {
   isGuess: boolean;
 }
 
+/** Did every working set reach at least `target` reps? */
+function allWorkingSetsReached(sets: SetLog[], target: number): boolean {
+  const working = sets.filter(isWorkingSet);
+  return working.length > 0 && working.every((s) => s.reps >= target);
+}
+
+/** Did any working set come in under `min` reps? */
+function anyWorkingSetBelow(sets: SetLog[], min: number): boolean {
+  return sets.filter(isWorkingSet).some((s) => s.reps < min);
+}
+
 /**
  * The suggestion to show for a slot's exercise, given that exercise's own
  * history (oldest first) and the current profile.
  *
- * Phase 3 covers the no-history and first-session cases. The full double
- * progression rules land in phase 5.
+ *   0 sessions  -> starting guess from the ratio.
+ *   1 session   -> one-off correction from how that session went.
+ *   2+ sessions -> double progression: hold the weight and chase reps within
+ *                  repMin..repMax; add a plate once every set hits repMax; drop
+ *                  a plate only after two sessions running below repMin.
  */
 export function suggestWeight(
   exercise: Exercise,
@@ -95,9 +109,9 @@ export function suggestWeight(
 
   const last = history[history.length - 1];
   const lastWeight = mostCommonWeight(last);
-  const lastAvgReps = averageReps(last.sets);
 
   if (history.length === 1) {
+    const lastAvgReps = averageReps(last.sets);
     const corrected = correctAfterFirstSession(exercise, slot, lastWeight, lastAvgReps);
     return {
       weight: corrected,
@@ -112,11 +126,43 @@ export function suggestWeight(
     };
   }
 
-  // TODO(phase 5): double progression across the last two sessions.
+  const inc = exercise.increment;
+
+  // Every set reached the top of the range: add load, reset reps to the bottom.
+  if (allWorkingSetsReached(last.sets, slot.repMax)) {
+    return {
+      weight: lastWeight + inc,
+      repTarget: "repMin",
+      reason: `Hit ${slot.repMax} on every set — adding ${inc}`,
+      isGuess: false
+    };
+  }
+
+  // A set fell below the range. Repeat the weight; only deload if it also
+  // happened the session before.
+  if (anyWorkingSetBelow(last.sets, slot.repMin)) {
+    const prev = history[history.length - 2];
+    if (anyWorkingSetBelow(prev.sets, slot.repMin)) {
+      return {
+        weight: floorToIncrement(Math.max(0, lastWeight - inc), inc),
+        repTarget: "hold",
+        reason: `Below ${slot.repMin} reps two sessions running — dropping ${inc}`,
+        isGuess: false
+      };
+    }
+    return {
+      weight: lastWeight,
+      repTarget: "hold",
+      reason: `A set dipped below ${slot.repMin} — repeat this weight`,
+      isGuess: false
+    };
+  }
+
+  // Somewhere inside the range: same weight, try to beat last time's reps.
   return {
     weight: lastWeight,
     repTarget: "beat-last",
-    reason: "Same as last time, beat your reps",
+    reason: "Same weight — beat last session's reps",
     isGuess: false
   };
 }
