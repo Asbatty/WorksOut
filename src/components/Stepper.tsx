@@ -14,6 +14,8 @@ interface StepperProps {
   ghost?: number | string;
   /** Small text after the number, e.g. "lb". */
   suffix?: string;
+  /** Keyboard to open when typing. "decimal" (weights) or "numeric" (reps). */
+  mode?: "decimal" | "numeric";
 }
 
 export function Stepper({
@@ -24,7 +26,8 @@ export function Stepper({
   min = 0,
   max,
   ghost,
-  suffix
+  suffix,
+  mode = "decimal"
 }: StepperProps) {
   const holdTimer = useRef<number | undefined>(undefined);
   const holdInterval = useRef<number | undefined>(undefined);
@@ -67,7 +70,7 @@ export function Stepper({
         </button>
         <label className="stepper-value">
           <input
-            inputMode="decimal"
+            inputMode={mode}
             pattern="[0-9]*"
             value={value === 0 && ghost != null ? "" : String(value)}
             placeholder={ghost != null ? String(ghost) : "0"}

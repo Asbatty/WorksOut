@@ -35,6 +35,7 @@ export function SetRow({
         label="Reps"
         value={set.reps}
         step={1}
+        mode="numeric"
         ghost={ghostReps}
         onChange={(reps) => onChange({ reps })}
       />
