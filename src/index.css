@@ -15,6 +15,9 @@
   --danger: #ff5c5c;
   --tap: 48px;
   --nav-h: 64px;
+  /* Frosted-glass fill for secondary buttons */
+  --glass: rgba(28, 33, 40, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.12);
   color-scheme: dark;
 }
 
@@ -87,8 +90,16 @@ button.danger {
   border-color: var(--danger);
   color: var(--danger);
 }
-button.ghost {
-  background: transparent;
+button.ghost,
+.ghost {
+  background: var(--glass);
+  border-color: var(--glass-border);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+}
+button.ghost:active,
+.ghost:active {
+  background: color-mix(in srgb, var(--glass) 70%, #fff 8%);
 }
 
 .card {
