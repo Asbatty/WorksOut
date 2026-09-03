@@ -21,7 +21,12 @@ const {
   saveEdits,
   getState,
   activeSession,
-  lastFinishedSession
+  lastFinishedSession,
+  updateProfile,
+  createProfile,
+  switchProfile,
+  deleteProfile,
+  profileList
 } = await import("./store");
 const { defaultState } = await import("./storage");
 const { cycleIndex } = await import("./schedule");
@@ -120,5 +125,37 @@ describe("finish + undo", () => {
     const first = getState().sessions[0].id;
     startSession(routine, "lower-a", () => 100); // in progress, not finished
     expect(() => reopenSession(first)).toThrow(/in progress/);
+  });
+});
+
+describe("local profiles", () => {
+  it("creates a fresh profile, parks the old one, and switches back", () => {
+    updateProfile({ name: "Andrew" });
+    logAndFinish(); // Andrew has 1 workout
+    const andrewId = getState().activeProfileId;
+
+    createProfile("Sam");
+    expect(getState().profile.name).toBe("Sam");
+    expect(getState().sessions).toHaveLength(0); // Sam starts empty
+    expect(getState().cyclePosition).toBe(0);
+    expect(profileList().map((p) => p.name).sort()).toEqual(["Andrew", "Sam"]);
+
+    const samId = getState().activeProfileId;
+    logAndFinish(); // Sam has 1 workout
+
+    switchProfile(andrewId);
+    expect(getState().profile.name).toBe("Andrew");
+    expect(getState().sessions).toHaveLength(1); // Andrew's data came back
+    expect(getState().cyclePosition).toBe(1);
+    expect(getState().otherProfiles[samId].sessions).toHaveLength(1);
+  });
+
+  it("won't delete the active profile, will delete an inactive one", () => {
+    const andrewId = getState().activeProfileId;
+    createProfile("Sam");
+    deleteProfile(getState().activeProfileId); // no-op on active
+    expect(profileList()).toHaveLength(2);
+    deleteProfile(andrewId);
+    expect(profileList().map((p) => p.name)).toEqual(["Sam"]);
   });
 });

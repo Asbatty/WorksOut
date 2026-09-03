@@ -721,6 +721,19 @@ button.ghost.small,
   border-radius: 999px;
   padding: 1px 7px;
 }
+.profile-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.profile-row .program-opt {
+  flex: 1;
+  margin-bottom: 0;
+}
+.profile-row .row-btns {
+  align-items: center;
+}
 .alt-list {
   list-style: none;
   padding: 0;

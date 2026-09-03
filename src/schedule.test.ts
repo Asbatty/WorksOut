@@ -23,7 +23,9 @@ const routine: Routine = {
 };
 
 const state = (cyclePosition: number): AppState => ({
-  schemaVersion: 2,
+  schemaVersion: 3,
+  activeProfileId: "a",
+  otherProfiles: {},
   profile: { id: "a", name: "A", bodyweightLb: 185, experience: "intermediate", unit: "lb" },
   sessions: [],
   cyclePosition,

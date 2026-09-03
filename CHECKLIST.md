@@ -30,6 +30,16 @@ Do this on the Galaxy S24 Ultra after a deploy, one-handed, standing up.
 - [ ] Finish workout: confirmation shows the logged set count. After finishing,
       Today rolls to the next day and the cycle number advances.
 
+## Profiles
+
+- [ ] Settings → Profiles → Add profile, name it. You're switched onto it:
+      empty History/Calendar, cycle at day 1.
+- [ ] Log a workout on the new profile, switch back to the first — its
+      history is intact and the new profile's shows its one workout.
+- [ ] Delete the inactive profile (✕ → Delete). The active one can't be
+      deleted.
+- [ ] Export data, then Import it — confirmation names the profile count.
+
 ## Programs & rest timer
 
 - [ ] Settings → Program shows three splits; the active one is badged. Switch

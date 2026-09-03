@@ -5,7 +5,7 @@
 import type { AppState, Profile, Routine, Session } from "./types";
 
 const STORAGE_KEY = "lift.appstate";
-export const SCHEMA_VERSION = 2 as const;
+export const SCHEMA_VERSION = 3 as const;
 
 /** Program id the app shipped with as its only split before v2. */
 export const LEGACY_PROGRAM_ID = "upper-lower-4";
@@ -26,6 +26,8 @@ export function newProfile(): Profile {
 export function defaultState(): AppState {
   return {
     schemaVersion: SCHEMA_VERSION,
+    activeProfileId: DEFAULT_PROFILE_ID,
+    otherProfiles: {},
     profile: newProfile(),
     sessions: [],
     cyclePosition: 0,
@@ -76,6 +78,9 @@ export function saveState(state: AppState): void {
  * v1 -> v2: a single `routineOverlay` becomes `routineOverlays` keyed by
  * program id, and `activeProgramId` is introduced (defaulting to the split the
  * app used to ship).
+ *
+ * v2 -> v3: local profiles. The existing flat data becomes the active
+ * profile; `otherProfiles` starts empty.
  */
 export function migrate(raw: unknown): AppState {
   const base = defaultState();
@@ -90,9 +95,17 @@ export function migrate(raw: unknown): AppState {
     routineOverlays = { [LEGACY_PROGRAM_ID]: obj.routineOverlay as Routine };
   }
 
+  const profile: Profile = { ...base.profile, ...(obj.profile as object) };
+
   const merged: AppState = {
     schemaVersion: SCHEMA_VERSION,
-    profile: { ...base.profile, ...(obj.profile as object) },
+    activeProfileId:
+      typeof obj.activeProfileId === "string" ? obj.activeProfileId : profile.id,
+    otherProfiles:
+      obj.otherProfiles && typeof obj.otherProfiles === "object"
+        ? (obj.otherProfiles as AppState["otherProfiles"])
+        : {},
+    profile,
     sessions: Array.isArray(obj.sessions)
       ? (obj.sessions as Session[]).map((s) =>
           // Sessions finished before the undo feature already advanced the
@@ -183,7 +196,8 @@ export async function exportBackup(state: AppState): Promise<void> {
 
 export interface ImportResult {
   state: AppState;
-  sessionCount: number;
+  sessionCount: number; // across every profile in the backup
+  profileCount: number;
 }
 
 /**
@@ -204,5 +218,11 @@ export async function readBackupFile(file: File): Promise<ImportResult> {
     throw new Error("That file is not a Lift backup.");
   }
   const state = migrate(obj.state);
-  return { state, sessionCount: state.sessions.length };
+  const others = Object.values(state.otherProfiles);
+  return {
+    state,
+    sessionCount:
+      state.sessions.length + others.reduce((n, p) => n + p.sessions.length, 0),
+    profileCount: 1 + others.length
+  };
 }

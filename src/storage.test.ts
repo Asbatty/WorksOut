@@ -54,4 +54,30 @@ describe("migrate v1 -> v2", () => {
     expect(migrate(null).sessions).toEqual([]);
     expect(migrate("nope").activeProgramId).toBe(LEGACY_PROGRAM_ID);
   });
+
+  it("v2 -> v3: the flat data becomes the active profile", () => {
+    const out = migrate({
+      schemaVersion: 2,
+      profile: { id: "andrew", name: "Andrew", bodyweightLb: 185, experience: "intermediate", unit: "lb" },
+      sessions: [],
+      activeProgramId: "full-body-3"
+    });
+    expect(out.activeProfileId).toBe("andrew");
+    expect(out.otherProfiles).toEqual({});
+    expect(out.activeProgramId).toBe("full-body-3");
+  });
+
+  it("keeps an existing otherProfiles map and activeProfileId", () => {
+    const snap = {
+      profile: { id: "b", name: "Sam", bodyweightLb: 140, experience: "beginner", unit: "lb" },
+      sessions: [],
+      cyclePosition: 0,
+      activeProgramId: "upper-lower-4",
+      swaps: {},
+      routineOverlays: {}
+    };
+    const out = migrate({ schemaVersion: 3, activeProfileId: "a", otherProfiles: { b: snap } });
+    expect(out.activeProfileId).toBe("a");
+    expect(out.otherProfiles.b.profile.name).toBe("Sam");
+  });
 });

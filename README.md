@@ -60,12 +60,21 @@ ordered `cycle`, and its `days`. To change it:
   `{ beginner, intermediate, advanced }`, each a fraction of bodyweight for
   the middle of that exercise's rep range.
 
+## Profiles
+
+**Settings → Profiles** keeps more than one person's training on the same
+device — each profile has its own history, program, swaps and cycle
+position. Switch anytime; the one you leave is saved, not lost. This is a
+local-only convenience: there is no sign-in and nothing syncs between
+devices. Every session records which profile logged it.
+
 ## Backups
 
-**Settings → Export data** writes a `lift-backup-YYYY-MM-DD.json` file (via
-the Android share sheet, or a download). **Import data** reads one back and,
-after a confirmation that tells you how many sessions will be replaced,
-swaps in its contents. Do this before clearing data or switching phones.
+**Settings → Export data** writes a `lift-backup-YYYY-MM-DD.json` covering
+**every profile on the device** (via the Android share sheet, or a
+download). **Import data** reads one back and, after a confirmation that
+names the profile and workout counts, replaces everything. Do this before
+clearing data or switching phones.
 
 ## Run locally
 

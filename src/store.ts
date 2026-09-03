@@ -3,7 +3,15 @@
 // logged set is never lost. Components read it with useAppState().
 
 import { useSyncExternalStore } from "react";
-import type { AppState, ExerciseLog, Profile, Routine, Session, SetLog } from "./types";
+import type {
+  AppState,
+  ExerciseLog,
+  Profile,
+  ProfileSnapshot,
+  Routine,
+  Session,
+  SetLog
+} from "./types";
 import { loadState, saveState, uid } from "./storage";
 import { advancedPosition, cycleIndex, positionAfterDay } from "./schedule";
 import { resolvedExerciseId, slotKey } from "./routine";
@@ -41,6 +49,107 @@ export function useAppState(): AppState {
 
 export function updateProfile(patch: Partial<Profile>) {
   set((s) => ({ ...s, profile: { ...s.profile, ...patch } }));
+}
+
+// --- local profiles -----------------------------------------------------
+//
+// The active profile's data lives in the flat AppState fields; every other
+// profile is a ProfileSnapshot parked in `otherProfiles`. Switching just moves
+// data between the two. There is no login — this is a local device thing.
+
+function snapshotActive(s: AppState): ProfileSnapshot {
+  return {
+    profile: s.profile,
+    sessions: s.sessions,
+    cyclePosition: s.cyclePosition,
+    activeProgramId: s.activeProgramId,
+    swaps: s.swaps,
+    routineOverlays: s.routineOverlays
+  };
+}
+
+function hydrate(s: AppState, id: string, snap: ProfileSnapshot): AppState {
+  return {
+    ...s,
+    activeProfileId: id,
+    profile: snap.profile,
+    sessions: snap.sessions,
+    cyclePosition: snap.cyclePosition,
+    activeProgramId: snap.activeProgramId,
+    swaps: snap.swaps,
+    routineOverlays: snap.routineOverlays,
+    restStartedAt: undefined
+  };
+}
+
+export interface ProfileListItem {
+  id: string;
+  name: string;
+  active: boolean;
+  sessionCount: number;
+}
+
+/** All local profiles, active one first. */
+export function profileList(s: AppState = state): ProfileListItem[] {
+  const active: ProfileListItem = {
+    id: s.activeProfileId,
+    name: s.profile.name,
+    active: true,
+    sessionCount: s.sessions.length
+  };
+  const others = Object.entries(s.otherProfiles).map(([id, p]) => ({
+    id,
+    name: p.profile.name,
+    active: false,
+    sessionCount: p.sessions.length
+  }));
+  return [active, ...others];
+}
+
+/** Load a different local profile (parks the current one on the side). */
+export function switchProfile(id: string) {
+  set((s) => {
+    if (id === s.activeProfileId) return s;
+    const target = s.otherProfiles[id];
+    if (!target) return s;
+    const otherProfiles = { ...s.otherProfiles };
+    delete otherProfiles[id];
+    otherProfiles[s.activeProfileId] = snapshotActive(s);
+    return hydrate({ ...s, otherProfiles }, id, target);
+  });
+}
+
+/** Create a new empty profile and switch to it. Inherits the current split. */
+export function createProfile(name: string) {
+  set((s) => {
+    const id = uid();
+    const otherProfiles = { ...s.otherProfiles, [s.activeProfileId]: snapshotActive(s) };
+    const fresh: ProfileSnapshot = {
+      profile: {
+        id,
+        name: name.trim() || "New profile",
+        bodyweightLb: 160,
+        experience: "beginner",
+        unit: "lb"
+      },
+      sessions: [],
+      cyclePosition: 0,
+      activeProgramId: s.activeProgramId,
+      swaps: {},
+      routineOverlays: {}
+    };
+    return hydrate({ ...s, otherProfiles }, id, fresh);
+  });
+}
+
+/** Delete a non-active profile and everything it logged. */
+export function deleteProfile(id: string) {
+  set((s) => {
+    if (id === s.activeProfileId || !s.otherProfiles[id]) return s;
+    const otherProfiles = { ...s.otherProfiles };
+    delete otherProfiles[id];
+    return { ...s, otherProfiles };
+  });
 }
 
 // --- swaps --------------------------------------------------------------

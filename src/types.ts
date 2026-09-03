@@ -162,14 +162,30 @@ export interface Profile {
   unit: "lb"; // kg support later
 }
 
+/** Everything that belongs to one local profile. */
+export interface ProfileSnapshot {
+  profile: Profile;
+  sessions: Session[];
+  cyclePosition: number;
+  activeProgramId: string;
+  swaps: Record<string, string>;
+  routineOverlays: Record<string, Routine>;
+}
+
 export interface AppState {
-  schemaVersion: 2;
+  schemaVersion: 3;
+  // --- which profile is loaded, and the others kept on the side ---
+  activeProfileId: string;
+  otherProfiles: Record<string, ProfileSnapshot>;
+  // --- the active profile's data, kept flat so the rest of the app is
+  //     profile-agnostic (switching swaps these out) ---
   profile: Profile;
   sessions: Session[];
   cyclePosition: number; // index into the active program's cycle
   activeProgramId: string; // which Program is selected
   swaps: Record<string, string>; // "dayId:slotIndex" -> exerciseId, persistent swaps
   routineOverlays: Record<string, Routine>; // programId -> in-app edited routine
+  // --- device-global ---
   routineFileVersion: number; // last version of routine.json seen
   restStartedAt?: number; // epoch ms the rest stopwatch started; absent = stopped
 }

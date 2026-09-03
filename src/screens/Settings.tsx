@@ -2,9 +2,13 @@ import { useRef, useState } from "react";
 import { useRoutine } from "../useRoutine";
 import {
   activeSession,
+  createProfile,
+  deleteProfile,
+  profileList,
   replaceState,
   setActiveProgram,
   setRoutineOverlay,
+  switchProfile,
   updateProfile,
   useAppState
 } from "../store";
@@ -27,19 +31,29 @@ export function Settings() {
   const [pendingImport, setPendingImport] = useState<{
     apply: () => void;
     sessionCount: number;
+    profileCount: number;
   } | null>(null);
   const [confirmClear, setConfirmClear] = useState(0); // 0, 1, 2 (double confirm)
   const [confirmReset, setConfirmReset] = useState(false);
   const [switchTo, setSwitchTo] = useState<string | null>(null);
+  const [switchProfileId, setSwitchProfileId] = useState<string | null>(null);
+  const [newProfileName, setNewProfileName] = useState("");
+  const [addingProfile, setAddingProfile] = useState(false);
+  const [deleteProfileId, setDeleteProfileId] = useState<string | null>(null);
 
   const hasOverlay = Boolean(state.routineOverlays[activeProgramId]);
   const workoutInProgress = Boolean(activeSession(state));
+  const profiles = profileList(state);
 
   const onFile = async (file: File) => {
     setMsg(undefined);
     try {
-      const { state: next, sessionCount } = await readBackupFile(file);
-      setPendingImport({ apply: () => replaceState(next), sessionCount });
+      const { state: next, sessionCount, profileCount } = await readBackupFile(file);
+      setPendingImport({
+        apply: () => replaceState(next),
+        sessionCount,
+        profileCount
+      });
     } catch (e) {
       setMsg((e as Error).message);
     }
@@ -50,7 +64,123 @@ export function Settings() {
       <h1>Settings</h1>
       {msg && <div className="edit-banner warn">{msg}</div>}
 
-      <h2>Profile</h2>
+      <h2>Profiles</h2>
+      <div className="card">
+        {profiles.map((p) => (
+          <div key={p.id} className="profile-row">
+            <button
+              className={p.active ? "program-opt on" : "program-opt"}
+              disabled={p.active}
+              onClick={() => setSwitchProfileId(p.id)}
+            >
+              <span className="program-opt-head">
+                <strong>{p.name}</strong>
+                <span className="dim small">
+                  {p.sessionCount} workout{p.sessionCount === 1 ? "" : "s"}
+                </span>
+                {p.active && <span className="program-badge">Active</span>}
+              </span>
+            </button>
+            {!p.active &&
+              (deleteProfileId === p.id ? (
+                <div className="row-btns">
+                  <button className="mini" onClick={() => setDeleteProfileId(null)}>
+                    Keep
+                  </button>
+                  <button
+                    className="mini danger"
+                    onClick={() => {
+                      deleteProfile(p.id);
+                      setDeleteProfileId(null);
+                      setMsg("Profile deleted.");
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className="mini danger"
+                  aria-label={`Delete ${p.name}`}
+                  onClick={() => setDeleteProfileId(p.id)}
+                >
+                  ✕
+                </button>
+              ))}
+          </div>
+        ))}
+
+        {switchProfileId && (
+          <div className="confirm-bar">
+            <span>
+              Switch to{" "}
+              <strong>{profiles.find((p) => p.id === switchProfileId)?.name}</strong>?
+              Your current data stays saved under{" "}
+              <strong>{state.profile.name}</strong>.
+            </span>
+            <div className="confirm-actions">
+              <button className="ghost" onClick={() => setSwitchProfileId(null)}>
+                Cancel
+              </button>
+              <button
+                className="primary"
+                onClick={() => {
+                  switchProfile(switchProfileId);
+                  setSwitchProfileId(null);
+                }}
+              >
+                Switch
+              </button>
+            </div>
+          </div>
+        )}
+
+        {addingProfile ? (
+          <div className="confirm-bar">
+            <label className="field">
+              <span>New profile name</span>
+              <input
+                autoFocus
+                value={newProfileName}
+                onChange={(e) => setNewProfileName(e.target.value)}
+              />
+            </label>
+            <div className="confirm-actions">
+              <button
+                className="ghost"
+                onClick={() => {
+                  setAddingProfile(false);
+                  setNewProfileName("");
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="primary"
+                disabled={!newProfileName.trim()}
+                onClick={() => {
+                  createProfile(newProfileName);
+                  setAddingProfile(false);
+                  setNewProfileName("");
+                  setMsg("Profile created — you're now on it.");
+                }}
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button className="wide" onClick={() => setAddingProfile(true)}>
+            + Add profile
+          </button>
+        )}
+        <p className="dim small">
+          Profiles are separate on this device only — separate history, program,
+          and swaps. There is no sign-in.
+        </p>
+      </div>
+
+      <h2>Active profile</h2>
       <div className="card">
         <label className="field">
           <span>Name</span>
@@ -124,10 +254,11 @@ export function Settings() {
         {pendingImport && (
           <div className="confirm-bar">
             <span>
-              Replace all current data with this backup? Your{" "}
-              <strong>{state.sessions.length}</strong> session
-              {state.sessions.length === 1 ? "" : "s"} will be replaced by{" "}
-              <strong>{pendingImport.sessionCount}</strong> from the file.
+              Replace <strong>all profiles and data</strong> on this device with
+              this backup? It contains <strong>{pendingImport.profileCount}</strong>{" "}
+              profile{pendingImport.profileCount === 1 ? "" : "s"} and{" "}
+              <strong>{pendingImport.sessionCount}</strong> workout
+              {pendingImport.sessionCount === 1 ? "" : "s"}.
             </span>
             <div className="confirm-actions">
               <button className="ghost" onClick={() => setPendingImport(null)}>
