@@ -23,11 +23,13 @@ const routine: Routine = {
 };
 
 const state = (cyclePosition: number): AppState => ({
-  schemaVersion: 1,
+  schemaVersion: 2,
   profile: { id: "a", name: "A", bodyweightLb: 185, experience: "intermediate", unit: "lb" },
   sessions: [],
   cyclePosition,
+  activeProgramId: "upper-lower-4",
   swaps: {},
+  routineOverlays: {},
   routineFileVersion: 1
 });
 

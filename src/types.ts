@@ -89,6 +89,32 @@ export interface WorkoutDay {
   slots: ProgramSlot[];
 }
 
+/**
+ * One training split (Upper/Lower, Full Body, Push/Pull/Legs, ...). All programs
+ * in a file share one exercise library.
+ */
+export interface Program {
+  id: string;
+  name: string;
+  description: string; // one line: who it's for
+  daysPerWeek: string; // "3", "4", "3-6"
+  cycle: string[]; // ordered WorkoutDay ids
+  days: WorkoutDay[];
+}
+
+/** The shape of public/routine.json (schema v2). */
+export interface RoutineFile {
+  version: number;
+  defaultProgramId: string;
+  exercises: Exercise[];
+  programs: Program[];
+}
+
+/**
+ * The active program flattened with the shared library — what schedule.ts,
+ * suggest.ts and the screens actually consume. An in-app edit (overlay) is a
+ * full Routine that replaces this for one program.
+ */
 export interface Routine {
   version: number;
   name: string;
@@ -137,11 +163,13 @@ export interface Profile {
 }
 
 export interface AppState {
-  schemaVersion: 1;
+  schemaVersion: 2;
   profile: Profile;
   sessions: Session[];
-  cyclePosition: number; // index into routine.cycle of the next workout
+  cyclePosition: number; // index into the active program's cycle
+  activeProgramId: string; // which Program is selected
   swaps: Record<string, string>; // "dayId:slotIndex" -> exerciseId, persistent swaps
-  routineOverlay?: Routine; // in-app edited routine, wins over routine.json
+  routineOverlays: Record<string, Routine>; // programId -> in-app edited routine
   routineFileVersion: number; // last version of routine.json seen
+  restStartedAt?: number; // epoch ms the rest stopwatch started; absent = stopped
 }

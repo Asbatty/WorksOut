@@ -147,6 +147,50 @@ button.ghost:active,
   font-size: 11px;
 }
 
+/* ---- Rest stopwatch (floating pill, bottom-right) ---- */
+.rest-timer {
+  position: fixed;
+  right: 12px;
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 84px);
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 6px 12px;
+  border-radius: 999px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+.rest-timer.running {
+  border-color: var(--accent);
+}
+.rest-time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 1.05rem;
+  min-width: 3.2ch;
+  text-align: center;
+}
+.rest-btn {
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--surface-2);
+  font-size: 1rem;
+}
+.rest-start {
+  min-height: 40px;
+  padding: 0 6px;
+  background: transparent;
+  border: none;
+  font-weight: 600;
+  color: var(--text);
+}
+
 /* ---- Toast ---- */
 .toast {
   position: fixed;
@@ -641,6 +685,41 @@ button.ghost.small,
 }
 .ghost.danger {
   color: var(--danger);
+}
+
+/* ---- Program picker (Settings) ---- */
+.program-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  background: var(--surface-2);
+  min-height: 0;
+}
+.program-opt.on {
+  border-color: var(--accent);
+}
+.program-opt:disabled {
+  opacity: 0.5;
+}
+.program-opt-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.program-badge {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 1px 7px;
 }
 .alt-list {
   list-style: none;

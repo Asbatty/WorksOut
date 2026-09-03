@@ -25,13 +25,30 @@ automatically and shows an "Update available" toast — tap **Reload**.
   this session or "always".
 - Tap an exercise name for its **form cue**, muscles, a YouTube form-check
   link, and your weight history with a chart.
-- **Calendar** and **History** show what you've done. **Editor** changes the
-  program. **Settings** has export/import and profile.
+- The **rest stopwatch** (bottom-right pill) auto-starts when you tick a set
+  done; tap ⟳ to restart, ✕ to stop. It counts up, no alarm.
+- **Calendar** and **History** show what you've done. **Editor** tweaks the
+  current program. **Settings** picks the training split (Upper/Lower, Full
+  Body, Push/Pull/Legs) and has export/import and profile.
+
+## Training splits
+
+Three programs ship in `routine.json`, all balanced hypertrophy for an
+intermediate lifter and sharing one exercise library:
+
+- **Upper / Lower** (4 days) — default; each muscle 2x/week.
+- **Full Body** (3 days) — highest weekly frequency per muscle.
+- **Push / Pull / Legs** (3–6 days) — rolling cycle.
+
+Switch in **Settings → Program**. Switching restarts you at day 1 of the new
+split; your per-exercise history and weight suggestions carry over. Each
+program keeps its own in-app edits.
 
 ## Editing the routine
 
-The program lives in [`public/routine.json`](public/routine.json) — an
-exercise library plus an ordered `cycle` of workout `days`. To change it:
+`public/routine.json` (schema v2) is one shared `exercises` library plus a
+list of `programs`, each with a `name`, `description`, `daysPerWeek`, an
+ordered `cycle`, and its `days`. To change it:
 
 - **In the app:** use the **Editor** screen. Edits are stored as a local
   overlay and win over the file. **Settings → Reset routine to file**
@@ -39,8 +56,9 @@ exercise library plus an ordered `cycle` of workout `days`. To change it:
 - **In the repo:** edit `public/routine.json` directly and push. Run
   `npm run validate` first — the build also runs it and fails on a bad file.
   Every id used in a day slot or in an exercise's `alternatives` must exist
-  in `exercises`. `ratio` is `{ beginner, intermediate, advanced }`, each a
-  fraction of bodyweight for the middle of that exercise's rep range.
+  in `exercises`, and day ids must be unique across programs. `ratio` is
+  `{ beginner, intermediate, advanced }`, each a fraction of bodyweight for
+  the middle of that exercise's rep range.
 
 ## Backups
 

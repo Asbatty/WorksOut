@@ -11,6 +11,7 @@ import {
   setExerciseNote,
   setPersistentSwap,
   skipWorkout,
+  startRest,
   startSession,
   swapInSession,
   updateSet,
@@ -52,7 +53,7 @@ const LOAD_HINT: Record<Exercise["loadType"], string> = {
 };
 
 export function Today() {
-  const { routine, loading, error } = useRoutine();
+  const { routine, loading, error, dayName } = useRoutine();
   const state = useAppState();
 
   if (!routine) {
@@ -72,7 +73,8 @@ export function Today() {
   }
 
   const session = activeSession(state);
-  if (session) return <ActiveWorkout routine={routine} session={session} />;
+  if (session)
+    return <ActiveWorkout routine={routine} session={session} dayName={dayName} />;
   return <PlannedDay routine={routine} />;
 }
 
@@ -114,7 +116,7 @@ function PlannedDay({ routine }: { routine: Routine }) {
       <header className="day-head">
         <h1>{day.name}</h1>
         <span className="sub">
-          Workout {num} of {routine.cycle.length}
+          {routine.name} · workout {num} of {routine.cycle.length}
         </span>
       </header>
 
@@ -245,7 +247,15 @@ function DifferentDay({ routine }: { routine: Routine }) {
 
 // --- during the workout ----------------------------------------------------
 
-function ActiveWorkout({ routine, session }: { routine: Routine; session: Session }) {
+function ActiveWorkout({
+  routine,
+  session,
+  dayName
+}: {
+  routine: Routine;
+  session: Session;
+  dayName: (id: string) => string;
+}) {
   const state = useAppState();
   const [expanded, setExpanded] = useState<Set<number>>(new Set([0]));
   const [confirming, setConfirming] = useState(false);
@@ -273,11 +283,11 @@ function ActiveWorkout({ routine, session }: { routine: Routine; session: Sessio
   return (
     <>
       <header className="day-head">
-        <h1>{day?.name ?? "Workout"}</h1>
+        <h1>{dayName(session.dayId)}</h1>
         <span className="sub">
           {editing
             ? `Editing · ${new Date(session.finishedAt ?? session.startedAt).toLocaleDateString()}`
-            : `Workout ${num} of ${routine.cycle.length}`}
+            : `${routine.name} · workout ${num} of ${routine.cycle.length}`}
         </span>
       </header>
 
@@ -382,9 +392,11 @@ function ActiveWorkout({ routine, session }: { routine: Routine; session: Sessio
                       weightStep={ex.increment}
                       weightSuffix={ex.loadType === "assisted" ? "assist" : "lb"}
                       ghostReps={last?.sets[setIndex]?.reps}
-                      onChange={(patch) =>
-                        updateSet(session.id, exIndex, setIndex, patch)
-                      }
+                      onChange={(patch) => {
+                        updateSet(session.id, exIndex, setIndex, patch);
+                        // Ticking a set done kicks off the rest stopwatch.
+                        if (patch.done === true) startRest();
+                      }}
                     />
                   ))}
 

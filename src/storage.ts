@@ -2,10 +2,13 @@
 // loadState / saveState. v1 uses localStorage; the schema version + migrate()
 // hook let us change the shape later without losing data.
 
-import type { AppState, Profile, Session } from "./types";
+import type { AppState, Profile, Routine, Session } from "./types";
 
 const STORAGE_KEY = "lift.appstate";
-export const SCHEMA_VERSION = 1 as const;
+export const SCHEMA_VERSION = 2 as const;
+
+/** Program id the app shipped with as its only split before v2. */
+export const LEGACY_PROGRAM_ID = "upper-lower-4";
 
 /** Stable id for the single v1 profile. Extra profiles get their own ids later. */
 export const DEFAULT_PROFILE_ID = "andrew";
@@ -26,8 +29,9 @@ export function defaultState(): AppState {
     profile: newProfile(),
     sessions: [],
     cyclePosition: 0,
+    activeProgramId: LEGACY_PROGRAM_ID,
     swaps: {},
-    routineOverlay: undefined,
+    routineOverlays: {},
     routineFileVersion: 0
   };
 }
@@ -66,16 +70,25 @@ export function saveState(state: AppState): void {
 }
 
 /**
- * Bring any older stored shape up to the current schema. Each step upgrades by
- * exactly one version. v1 is the first version, so there is nothing to do yet
- * beyond filling gaps in a partial object.
+ * Bring any older stored shape up to the current schema, filling gaps in a
+ * partial object.
+ *
+ * v1 -> v2: a single `routineOverlay` becomes `routineOverlays` keyed by
+ * program id, and `activeProgramId` is introduced (defaulting to the split the
+ * app used to ship).
  */
 export function migrate(raw: unknown): AppState {
   const base = defaultState();
   if (!raw || typeof raw !== "object") return base;
   const obj = raw as Record<string, unknown>;
 
-  // (future) while (obj.schemaVersion < SCHEMA_VERSION) { ...; obj.schemaVersion++ }
+  // Per-program overlays: carry a v1 single overlay across under the legacy id.
+  let routineOverlays: Record<string, Routine> = {};
+  if (obj.routineOverlays && typeof obj.routineOverlays === "object") {
+    routineOverlays = obj.routineOverlays as Record<string, Routine>;
+  } else if (obj.routineOverlay && typeof obj.routineOverlay === "object") {
+    routineOverlays = { [LEGACY_PROGRAM_ID]: obj.routineOverlay as Routine };
+  }
 
   const merged: AppState = {
     schemaVersion: SCHEMA_VERSION,
@@ -90,13 +103,21 @@ export function migrate(raw: unknown): AppState {
         )
       : [],
     cyclePosition: typeof obj.cyclePosition === "number" ? obj.cyclePosition : 0,
+    activeProgramId:
+      typeof obj.activeProgramId === "string" ? obj.activeProgramId : LEGACY_PROGRAM_ID,
     swaps:
       obj.swaps && typeof obj.swaps === "object"
         ? (obj.swaps as Record<string, string>)
         : {},
-    routineOverlay: (obj.routineOverlay as AppState["routineOverlay"]) ?? undefined,
+    routineOverlays,
     routineFileVersion:
-      typeof obj.routineFileVersion === "number" ? obj.routineFileVersion : 0
+      typeof obj.routineFileVersion === "number" ? obj.routineFileVersion : 0,
+    // Drop a stale rest stopwatch (app left open / backgrounded for hours).
+    restStartedAt:
+      typeof obj.restStartedAt === "number" &&
+      Date.now() - obj.restStartedAt < 2 * 60 * 60 * 1000
+        ? obj.restStartedAt
+        : undefined
   };
   return merged;
 }

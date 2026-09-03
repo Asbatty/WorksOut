@@ -1,6 +1,13 @@
 import { useRef, useState } from "react";
 import { useRoutine } from "../useRoutine";
-import { replaceState, setRoutineOverlay, updateProfile, useAppState } from "../store";
+import {
+  activeSession,
+  replaceState,
+  setActiveProgram,
+  setRoutineOverlay,
+  updateProfile,
+  useAppState
+} from "../store";
 import {
   defaultState,
   exportBackup,
@@ -14,7 +21,7 @@ const EXPERIENCE: Experience[] = ["beginner", "intermediate", "advanced"];
 
 export function Settings() {
   const state = useAppState();
-  const { fileVersion } = useRoutine();
+  const { fileVersion, programs, activeProgramId, routine } = useRoutine();
   const fileInput = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<string>();
   const [pendingImport, setPendingImport] = useState<{
@@ -23,6 +30,10 @@ export function Settings() {
   } | null>(null);
   const [confirmClear, setConfirmClear] = useState(0); // 0, 1, 2 (double confirm)
   const [confirmReset, setConfirmReset] = useState(false);
+  const [switchTo, setSwitchTo] = useState<string | null>(null);
+
+  const hasOverlay = Boolean(state.routineOverlays[activeProgramId]);
+  const workoutInProgress = Boolean(activeSession(state));
 
   const onFile = async (file: File) => {
     setMsg(undefined);
@@ -137,24 +148,73 @@ export function Settings() {
         )}
       </div>
 
-      <h2>Routine</h2>
+      <h2>Program</h2>
+      <div className="card">
+        {programs.map((p) => {
+          const current = p.id === activeProgramId;
+          return (
+            <button
+              key={p.id}
+              className={current ? "program-opt on" : "program-opt"}
+              disabled={workoutInProgress && !current}
+              onClick={() => !current && setSwitchTo(p.id)}
+            >
+              <span className="program-opt-head">
+                <strong>{p.name}</strong>
+                <span className="dim small">{p.daysPerWeek} days/wk</span>
+                {current && <span className="program-badge">Active</span>}
+              </span>
+              <span className="dim small">{p.description}</span>
+            </button>
+          );
+        })}
+        {workoutInProgress && (
+          <p className="dim small">Finish your current workout to switch programs.</p>
+        )}
+        {switchTo && (
+          <div className="confirm-bar">
+            <span>
+              Switch to{" "}
+              <strong>{programs.find((p) => p.id === switchTo)?.name}</strong>? You'll
+              start at day 1. Your logged history is kept.
+            </span>
+            <div className="confirm-actions">
+              <button className="ghost" onClick={() => setSwitchTo(null)}>
+                Cancel
+              </button>
+              <button
+                className="primary"
+                onClick={() => {
+                  setActiveProgram(switchTo);
+                  setSwitchTo(null);
+                  setMsg("Program switched.");
+                }}
+              >
+                Switch
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <h2>Routine edits</h2>
       <div className="card">
         <p className="dim small">
-          {state.routineOverlay
-            ? "You're using a locally edited routine."
-            : "You're using routine.json as shipped."}
+          {hasOverlay
+            ? `You're using a locally edited copy of ${routine?.name ?? "this program"}.`
+            : "You're using this program as shipped in routine.json."}
         </p>
         {!confirmReset ? (
           <button
             className="wide"
-            disabled={!state.routineOverlay}
+            disabled={!hasOverlay}
             onClick={() => setConfirmReset(true)}
           >
-            Reset routine to file
+            Reset this program to file
           </button>
         ) : (
           <div className="confirm-bar">
-            <span>Discard your local routine edits?</span>
+            <span>Discard your local edits to {routine?.name}?</span>
             <div className="confirm-actions">
               <button className="ghost" onClick={() => setConfirmReset(false)}>
                 Keep edits
@@ -162,7 +222,7 @@ export function Settings() {
               <button
                 className="danger"
                 onClick={() => {
-                  setRoutineOverlay(undefined);
+                  setRoutineOverlay(activeProgramId, undefined);
                   setConfirmReset(false);
                   setMsg("Routine reset to file.");
                 }}
@@ -224,9 +284,11 @@ export function Settings() {
         <p className="dim small block">App version {__APP_VERSION__}</p>
         <p className="dim small block">Data schema v{SCHEMA_VERSION}</p>
         <p className="dim small block">
-          routine.json version{" "}
-          {fileVersion ?? (state.routineFileVersion || "unknown")}
-          {state.routineOverlay ? " (overridden by local edits)" : ""}
+          Program: {routine?.name ?? activeProgramId}
+          {hasOverlay ? " (locally edited)" : ""}
+        </p>
+        <p className="dim small block">
+          routine.json version {fileVersion ?? (state.routineFileVersion || "unknown")}
         </p>
       </div>
     </>

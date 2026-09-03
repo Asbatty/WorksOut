@@ -8,7 +8,7 @@ import {
   sessionById,
   useAppState
 } from "../store";
-import { findDay, findExercise } from "../routine";
+import { findExercise } from "../routine";
 
 export function formatSessionDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -20,7 +20,7 @@ export function formatSessionDate(iso: string): string {
 }
 
 export function SessionView({ id }: { id: string }) {
-  const { routine } = useRoutine();
+  const { routine, dayName } = useRoutine();
   const state = useAppState();
   const session = sessionById(id, state);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -35,7 +35,6 @@ export function SessionView({ id }: { id: string }) {
     );
   }
 
-  const day = routine ? findDay(routine, session.dayId) : undefined;
   const totalSets = session.exercises.reduce((n, l) => n + l.sets.length, 0);
   const busy = activeSession(state);
   const canEdit = Boolean(session.finishedAt) && !session.editing;
@@ -43,7 +42,7 @@ export function SessionView({ id }: { id: string }) {
   return (
     <>
       <BackLink />
-      <h1>{day?.name ?? session.dayId}</h1>
+      <h1>{dayName(session.dayId)}</h1>
       <p className="dim">
         {formatSessionDate(session.finishedAt ?? session.startedAt)}
         {!session.finishedAt && " · not finished"}

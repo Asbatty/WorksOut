@@ -2,11 +2,11 @@ import { useState } from "react";
 import { navigate } from "../router";
 import { useRoutine } from "../useRoutine";
 import { reopenSession, useAppState } from "../store";
-import { findDay, findExercise } from "../routine";
+import { findExercise } from "../routine";
 import { formatSessionDate } from "./SessionView";
 
 export function History() {
-  const { routine } = useRoutine();
+  const { routine, dayName } = useRoutine();
   const state = useAppState();
   const [open, setOpen] = useState<string | null>(null);
 
@@ -33,7 +33,6 @@ export function History() {
 
       <div className="exercise-list">
         {sessions.map((s) => {
-          const day = routine ? findDay(routine, s.dayId) : undefined;
           const isOpen = open === s.id;
           const totalSets = s.exercises.reduce((n, l) => n + l.sets.length, 0);
           return (
@@ -45,7 +44,7 @@ export function History() {
               >
                 <span className={isOpen ? "caret open" : "caret"}>▸</span>
                 <span>
-                  <span className="ex-name">{day?.name ?? s.dayId}</span>
+                  <span className="ex-name">{dayName(s.dayId)}</span>
                   <span className="dim small block">
                     {formatSessionDate(s.finishedAt ?? s.startedAt)}
                     {!s.finishedAt && " · in progress"}

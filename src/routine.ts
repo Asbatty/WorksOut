@@ -1,29 +1,65 @@
-// Loads the routine and exposes small helpers for working with it.
+// Loads the routine file and exposes small helpers for working with it.
 //
-// Source of truth is public/routine.json, fetched on load (the service worker
-// serves it network-first, cache fallback). In-app edits are stored separately
-// on AppState.routineOverlay and take precedence until "Reset to file".
+// The file (public/routine.json, schema v2) holds one shared exercise library
+// plus several programs (Upper/Lower, Full Body, Push/Pull/Legs). The active
+// program is flattened with the library into a Routine for the rest of the app.
+// A per-program in-app edit (AppState.routineOverlays) takes precedence.
 
-import type { AppState, Exercise, Routine, WorkoutDay } from "./types";
+import type {
+  AppState,
+  Exercise,
+  Program,
+  Routine,
+  RoutineFile,
+  WorkoutDay
+} from "./types";
 
 export const ROUTINE_URL = `${import.meta.env.BASE_URL}routine.json`;
 
 /** Fetch routine.json. Rejects if offline with no cached copy. */
-export async function fetchRoutineFile(): Promise<Routine> {
+export async function fetchRoutineFile(): Promise<RoutineFile> {
   const res = await fetch(ROUTINE_URL, { cache: "no-cache" });
   if (!res.ok) throw new Error(`routine.json: HTTP ${res.status}`);
-  const routine = (await res.json()) as Routine;
-  const problems = validateRoutine(routine);
-  if (problems.length) {
-    // Don't hard-fail the app over a bad file; log loudly so it's noticed.
-    console.warn("routine.json has problems:\n" + problems.join("\n"));
+  const file = (await res.json()) as RoutineFile;
+  for (const prog of file.programs ?? []) {
+    const problems = validateRoutine(programToRoutine(prog, file));
+    if (problems.length) {
+      // Don't hard-fail the app over a bad file; log loudly so it's noticed.
+      console.warn(`routine.json program "${prog.id}":\n` + problems.join("\n"));
+    }
   }
-  return routine;
+  return file;
 }
 
-/** The routine the app should actually use right now. */
-export function getActiveRoutine(state: AppState, fileRoutine: Routine): Routine {
-  return state.routineOverlay ?? fileRoutine;
+/** The program the user has selected (falls back to the file default). */
+export function activeProgram(state: AppState, file: RoutineFile): Program {
+  return (
+    file.programs.find((p) => p.id === state.activeProgramId) ??
+    file.programs.find((p) => p.id === file.defaultProgramId) ??
+    file.programs[0]
+  );
+}
+
+/** Every day across every program (for naming sessions from any split). */
+export function allProgramDays(file: RoutineFile): WorkoutDay[] {
+  return file.programs.flatMap((p) => p.days);
+}
+
+/** Flatten a program with the shared library into a Routine. */
+export function programToRoutine(prog: Program, file: RoutineFile): Routine {
+  return {
+    version: file.version,
+    name: prog.name,
+    cycle: prog.cycle,
+    days: prog.days,
+    exercises: file.exercises
+  };
+}
+
+/** The routine the app should actually use right now (overlay wins). */
+export function getActiveRoutine(state: AppState, file: RoutineFile): Routine {
+  const prog = activeProgram(state, file);
+  return state.routineOverlays[prog.id] ?? programToRoutine(prog, file);
 }
 
 // --- lookup helpers ---------------------------------------------------------

@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { navigate } from "../router";
 import { useRoutine } from "../useRoutine";
 import { useAppState } from "../store";
-import { findDay } from "../routine";
 import type { Session } from "../types";
 
 /** Local YYYY-MM-DD key for a date. */
@@ -25,7 +24,7 @@ function abbrev(name: string): string {
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
 export function Calendar() {
-  const { routine } = useRoutine();
+  const { dayName } = useRoutine();
   const state = useAppState();
   const [view, setView] = useState(() => {
     const now = new Date();
@@ -85,7 +84,7 @@ export function Calendar() {
           if (day == null) return <div key={i} className="cal-cell empty" />;
           const k = dayKey(new Date(year, month, day));
           const session = byDay.get(k);
-          const dayName = session && routine ? findDay(routine, session.dayId)?.name : undefined;
+          const label = session ? dayName(session.dayId) : undefined;
           return (
             <button
               key={i}
@@ -99,7 +98,7 @@ export function Calendar() {
               {session && (
                 <>
                   <span className="cal-dot" />
-                  {dayName && <span className="cal-tag">{abbrev(dayName)}</span>}
+                  {label && <span className="cal-tag">{abbrev(label)}</span>}
                 </>
               )}
             </button>

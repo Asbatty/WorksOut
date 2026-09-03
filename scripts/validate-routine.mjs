@@ -1,5 +1,6 @@
-// Sanity-checks public/routine.json: every referenced id exists, rep ranges are
-// valid, alternatives chain. Run: node scripts/validate-routine.mjs
+// Sanity-checks public/routine.json (schema v2): shared exercise library, one or
+// more programs, every referenced id resolvable, rep ranges valid, alternatives
+// chain, day ids unique across programs. Run: node scripts/validate-routine.mjs
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -10,18 +11,37 @@ const routine = JSON.parse(readFileSync(file, "utf8"));
 const problems = [];
 const ids = new Set(routine.exercises.map((e) => e.id));
 
-if (!routine.cycle?.length) problems.push("cycle is empty");
-for (const dayId of routine.cycle) {
-  if (!routine.days.some((d) => d.id === dayId)) problems.push(`cycle references unknown day "${dayId}"`);
+if (!Array.isArray(routine.programs) || routine.programs.length === 0) {
+  problems.push("no programs");
 }
-for (const day of routine.days) {
-  if (!day.slots?.length) problems.push(`day "${day.id}" has no slots`);
-  day.slots.forEach((slot, i) => {
-    if (!ids.has(slot.exerciseId)) problems.push(`day "${day.id}" slot ${i}: unknown exercise "${slot.exerciseId}"`);
-    if (slot.repMin < 1 || slot.repMax < slot.repMin) problems.push(`day "${day.id}" slot ${i}: bad rep range ${slot.repMin}-${slot.repMax}`);
-    if (slot.sets < 1) problems.push(`day "${day.id}" slot ${i}: ${slot.sets} sets`);
-  });
+if (!routine.programs?.some((p) => p.id === routine.defaultProgramId)) {
+  problems.push(`defaultProgramId "${routine.defaultProgramId}" is not a program`);
 }
+
+const seenDayIds = new Set();
+let dayCount = 0;
+for (const prog of routine.programs ?? []) {
+  if (!prog.id || !prog.name) problems.push(`a program is missing id/name`);
+  if (!prog.cycle?.length) problems.push(`program "${prog.id}" has an empty cycle`);
+  for (const dayId of prog.cycle ?? []) {
+    if (!prog.days.some((d) => d.id === dayId))
+      problems.push(`program "${prog.id}" cycle references unknown day "${dayId}"`);
+  }
+  for (const day of prog.days ?? []) {
+    dayCount++;
+    if (seenDayIds.has(day.id)) problems.push(`duplicate day id "${day.id}"`);
+    seenDayIds.add(day.id);
+    if (!day.slots?.length) problems.push(`day "${day.id}" has no slots`);
+    day.slots.forEach((slot, i) => {
+      if (!ids.has(slot.exerciseId))
+        problems.push(`${prog.id}/${day.id} slot ${i}: unknown exercise "${slot.exerciseId}"`);
+      if (slot.repMin < 1 || slot.repMax < slot.repMin)
+        problems.push(`${prog.id}/${day.id} slot ${i}: bad rep range ${slot.repMin}-${slot.repMax}`);
+      if (slot.sets < 1) problems.push(`${prog.id}/${day.id} slot ${i}: ${slot.sets} sets`);
+    });
+  }
+}
+
 const LOAD_TYPES = new Set(["total", "per-side", "bodyweight", "assisted"]);
 for (const ex of routine.exercises) {
   for (const altId of ex.alternatives) {
@@ -39,4 +59,7 @@ if (problems.length) {
   for (const p of problems) console.error("  - " + p);
   process.exit(1);
 }
-console.log(`routine.json OK: ${routine.exercises.length} exercises, ${routine.days.length} days, cycle of ${routine.cycle.length}`);
+console.log(
+  `routine.json OK: ${routine.exercises.length} exercises, ` +
+    `${routine.programs.length} programs, ${dayCount} days`
+);

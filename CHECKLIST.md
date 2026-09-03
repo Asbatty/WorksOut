@@ -30,6 +30,18 @@ Do this on the Galaxy S24 Ultra after a deploy, one-handed, standing up.
 - [ ] Finish workout: confirmation shows the logged set count. After finishing,
       Today rolls to the next day and the cycle number advances.
 
+## Programs & rest timer
+
+- [ ] Settings → Program shows three splits; the active one is badged. Switch
+      to Full Body — confirm dialog warns it restarts at day 1. Today now
+      shows a Full Body day; the cycle counter is 1 of 3.
+- [ ] Switching back to Upper / Lower keeps all past history and suggestions.
+- [ ] Editor edits only the current program; its banner names it.
+- [ ] Can't switch programs while a workout is in progress.
+- [ ] Start a workout: rest pill appears bottom-right. Tick a set done — it
+      starts counting. ⟳ restarts from 0, ✕ stops. It keeps running if you
+      switch tabs or background the app.
+
 ## Undo / edit a finished workout
 
 - [ ] Finish a workout. On Today, tap **Reopen last workout** — it comes back

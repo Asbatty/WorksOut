@@ -7,6 +7,7 @@ import { History } from "./screens/History";
 import { Editor } from "./screens/Editor";
 import { Settings } from "./screens/Settings";
 import { SessionView } from "./screens/SessionView";
+import { RestTimer } from "./components/RestTimer";
 
 const NAV: { hash: string; label: string; icon: string; match: string[] }[] = [
   { hash: "#/today", label: "Today", icon: "🏋", match: ["today"] },
@@ -31,6 +32,7 @@ export function App() {
         {route.name === "session" && <SessionView id={route.id} />}
       </main>
 
+      <RestTimer />
       <UpdateToast />
 
       <nav className="bottom-nav">

@@ -284,14 +284,41 @@ export function skipWorkout(routine: Routine) {
   set((s) => ({ ...s, cyclePosition: advancedPosition(s, routine) }));
 }
 
-// --- routine overlay + file version --------------------------------------
+// --- programs + routine overlay + file version --------------------------
 
-export function setRoutineOverlay(routine: Routine | undefined) {
-  set((s) => ({ ...s, routineOverlay: routine }));
+/** Switch the active training split. Restarts the cycle at day 1. */
+export function setActiveProgram(programId: string) {
+  set((s) =>
+    s.activeProgramId === programId
+      ? s
+      : { ...s, activeProgramId: programId, cyclePosition: 0 }
+  );
+}
+
+/** Set (or clear, with undefined) the in-app edited routine for one program. */
+export function setRoutineOverlay(programId: string, routine: Routine | undefined) {
+  set((s) => {
+    const routineOverlays = { ...s.routineOverlays };
+    if (routine) routineOverlays[programId] = routine;
+    else delete routineOverlays[programId];
+    return { ...s, routineOverlays };
+  });
 }
 
 export function noteRoutineFileVersion(version: number) {
   set((s) => (s.routineFileVersion === version ? s : { ...s, routineFileVersion: version }));
+}
+
+// --- rest stopwatch -----------------------------------------------------
+
+/** Start (or restart) the rest stopwatch from zero. */
+export function startRest() {
+  set((s) => ({ ...s, restStartedAt: Date.now() }));
+}
+
+/** Stop and clear the rest stopwatch. */
+export function stopRest() {
+  set((s) => (s.restStartedAt == null ? s : { ...s, restStartedAt: undefined }));
 }
 
 // --- import / danger zone ----------------------------------------------

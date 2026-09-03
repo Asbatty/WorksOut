@@ -72,7 +72,7 @@ function slugify(name: string, taken: Set<string>): string {
 }
 
 export function Editor() {
-  const { routine } = useRoutine();
+  const { routine, activeProgramId } = useRoutine();
   useAppState(); // re-render when the overlay changes
   const [pickerFor, setPickerFor] = useState<
     { dayId: string; slotIndex: number | "add" } | null
@@ -81,7 +81,8 @@ export function Editor() {
 
   if (!routine) return <p>Loading routine…</p>;
 
-  const commit = (next: Routine) => setRoutineOverlay(syncCycle(next));
+  const commit = (next: Routine) =>
+    setRoutineOverlay(activeProgramId, syncCycle(next));
   const problems = validateRoutine(routine);
 
   // --- day ops ---
@@ -160,7 +161,8 @@ export function Editor() {
     <>
       <h1>Routine editor</h1>
       <div className="edit-banner">
-        Editing a local copy. Reset to file in Settings to discard.
+        Editing a local copy of <strong>{routine.name}</strong>. Reset to file in
+        Settings to discard. Switch programs in Settings.
       </div>
       {problems.length > 0 && (
         <div className="edit-banner warn">

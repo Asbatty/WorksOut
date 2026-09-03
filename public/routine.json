@@ -1,58 +1,162 @@
 {
-  "version": 1,
-  "name": "Balanced Hypertrophy Upper/Lower",
-  "cycle": ["upper-a", "lower-a", "upper-b", "lower-b"],
-  "days": [
+  "version": 2,
+  "defaultProgramId": "upper-lower-4",
+  "programs": [
     {
-      "id": "upper-a",
-      "name": "Upper A",
-      "slots": [
-        { "exerciseId": "barbell-bench-press", "sets": 3, "repMin": 6, "repMax": 10 },
-        { "exerciseId": "chest-supported-row", "sets": 3, "repMin": 8, "repMax": 12 },
-        { "exerciseId": "seated-db-shoulder-press", "sets": 3, "repMin": 8, "repMax": 12 },
-        { "exerciseId": "lat-pulldown", "sets": 3, "repMin": 8, "repMax": 12 },
-        { "exerciseId": "cable-lateral-raise", "sets": 3, "repMin": 12, "repMax": 15 },
-        { "exerciseId": "cable-triceps-pushdown", "sets": 3, "repMin": 10, "repMax": 15 },
-        { "exerciseId": "db-curl", "sets": 3, "repMin": 10, "repMax": 15 }
+      "id": "upper-lower-4",
+      "name": "Upper / Lower",
+      "description": "Two upper and two lower days. Each muscle trained twice a week — the standard hypertrophy split for 4 days.",
+      "daysPerWeek": "4",
+      "cycle": ["upper-a", "lower-a", "upper-b", "lower-b"],
+      "days": [
+        {
+          "id": "upper-a",
+          "name": "Upper A",
+          "slots": [
+            { "exerciseId": "barbell-bench-press", "sets": 3, "repMin": 6, "repMax": 10 },
+            { "exerciseId": "chest-supported-row", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "seated-db-shoulder-press", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "lat-pulldown", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "cable-lateral-raise", "sets": 3, "repMin": 12, "repMax": 15 },
+            { "exerciseId": "cable-triceps-pushdown", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "db-curl", "sets": 3, "repMin": 10, "repMax": 15 }
+          ]
+        },
+        {
+          "id": "lower-a",
+          "name": "Lower A",
+          "slots": [
+            { "exerciseId": "barbell-back-squat", "sets": 3, "repMin": 6, "repMax": 10 },
+            { "exerciseId": "romanian-deadlift", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "leg-press", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "seated-leg-curl", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "standing-calf-raise", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "cable-crunch", "sets": 3, "repMin": 10, "repMax": 15 }
+          ]
+        },
+        {
+          "id": "upper-b",
+          "name": "Upper B",
+          "slots": [
+            { "exerciseId": "incline-db-press", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "pull-up", "sets": 3, "repMin": 6, "repMax": 10 },
+            { "exerciseId": "machine-chest-press", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "cable-seated-row", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "db-lateral-raise", "sets": 3, "repMin": 12, "repMax": 15 },
+            { "exerciseId": "rear-delt-fly", "sets": 3, "repMin": 12, "repMax": 15 },
+            { "exerciseId": "ez-bar-curl", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "overhead-cable-triceps-extension", "sets": 3, "repMin": 10, "repMax": 15 }
+          ]
+        },
+        {
+          "id": "lower-b",
+          "name": "Lower B",
+          "slots": [
+            { "exerciseId": "hack-squat", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "hip-thrust", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "db-bulgarian-split-squat", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "leg-extension", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "lying-leg-curl", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "seated-calf-raise", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "hanging-knee-raise", "sets": 3, "repMin": 10, "repMax": 15 }
+          ]
+        }
       ]
     },
     {
-      "id": "lower-a",
-      "name": "Lower A",
-      "slots": [
-        { "exerciseId": "barbell-back-squat", "sets": 3, "repMin": 6, "repMax": 10 },
-        { "exerciseId": "romanian-deadlift", "sets": 3, "repMin": 8, "repMax": 12 },
-        { "exerciseId": "leg-press", "sets": 3, "repMin": 10, "repMax": 15 },
-        { "exerciseId": "seated-leg-curl", "sets": 3, "repMin": 10, "repMax": 15 },
-        { "exerciseId": "standing-calf-raise", "sets": 3, "repMin": 10, "repMax": 15 },
-        { "exerciseId": "cable-crunch", "sets": 3, "repMin": 10, "repMax": 15 }
+      "id": "full-body-3",
+      "name": "Full Body",
+      "description": "Three full-body sessions a week. Highest weekly frequency per muscle — the usual recommendation at 3 days a week.",
+      "daysPerWeek": "3",
+      "cycle": ["fb-a", "fb-b", "fb-c"],
+      "days": [
+        {
+          "id": "fb-a",
+          "name": "Full Body A",
+          "slots": [
+            { "exerciseId": "barbell-back-squat", "sets": 3, "repMin": 6, "repMax": 10 },
+            { "exerciseId": "barbell-bench-press", "sets": 3, "repMin": 6, "repMax": 10 },
+            { "exerciseId": "cable-seated-row", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "seated-db-shoulder-press", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "lying-leg-curl", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "db-curl", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "standing-calf-raise", "sets": 3, "repMin": 10, "repMax": 15 }
+          ]
+        },
+        {
+          "id": "fb-b",
+          "name": "Full Body B",
+          "slots": [
+            { "exerciseId": "romanian-deadlift", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "incline-db-press", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "lat-pulldown", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "db-lateral-raise", "sets": 3, "repMin": 12, "repMax": 15 },
+            { "exerciseId": "leg-extension", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "cable-triceps-pushdown", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "cable-crunch", "sets": 3, "repMin": 10, "repMax": 15 }
+          ]
+        },
+        {
+          "id": "fb-c",
+          "name": "Full Body C",
+          "slots": [
+            { "exerciseId": "hack-squat", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "machine-chest-press", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "chest-supported-row", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "rear-delt-fly", "sets": 3, "repMin": 12, "repMax": 15 },
+            { "exerciseId": "seated-leg-curl", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "ez-bar-curl", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "hanging-knee-raise", "sets": 3, "repMin": 10, "repMax": 15 }
+          ]
+        }
       ]
     },
     {
-      "id": "upper-b",
-      "name": "Upper B",
-      "slots": [
-        { "exerciseId": "incline-db-press", "sets": 3, "repMin": 8, "repMax": 12 },
-        { "exerciseId": "pull-up", "sets": 3, "repMin": 6, "repMax": 10 },
-        { "exerciseId": "machine-chest-press", "sets": 3, "repMin": 10, "repMax": 15 },
-        { "exerciseId": "cable-seated-row", "sets": 3, "repMin": 8, "repMax": 12 },
-        { "exerciseId": "db-lateral-raise", "sets": 3, "repMin": 12, "repMax": 15 },
-        { "exerciseId": "rear-delt-fly", "sets": 3, "repMin": 12, "repMax": 15 },
-        { "exerciseId": "ez-bar-curl", "sets": 3, "repMin": 8, "repMax": 12 },
-        { "exerciseId": "overhead-cable-triceps-extension", "sets": 3, "repMin": 10, "repMax": 15 }
-      ]
-    },
-    {
-      "id": "lower-b",
-      "name": "Lower B",
-      "slots": [
-        { "exerciseId": "hack-squat", "sets": 3, "repMin": 8, "repMax": 12 },
-        { "exerciseId": "hip-thrust", "sets": 3, "repMin": 8, "repMax": 12 },
-        { "exerciseId": "db-bulgarian-split-squat", "sets": 3, "repMin": 8, "repMax": 12 },
-        { "exerciseId": "leg-extension", "sets": 3, "repMin": 10, "repMax": 15 },
-        { "exerciseId": "lying-leg-curl", "sets": 3, "repMin": 10, "repMax": 15 },
-        { "exerciseId": "seated-calf-raise", "sets": 3, "repMin": 10, "repMax": 15 },
-        { "exerciseId": "hanging-knee-raise", "sets": 3, "repMin": 10, "repMax": 15 }
+      "id": "ppl-6",
+      "name": "Push / Pull / Legs",
+      "description": "Push, Pull and Legs as a rolling cycle. Scales from 3 days a week (about 1.5x per muscle) up to 6 (2x).",
+      "daysPerWeek": "3-6",
+      "cycle": ["ppl-push", "ppl-pull", "ppl-legs"],
+      "days": [
+        {
+          "id": "ppl-push",
+          "name": "Push",
+          "slots": [
+            { "exerciseId": "barbell-bench-press", "sets": 3, "repMin": 6, "repMax": 10 },
+            { "exerciseId": "seated-db-shoulder-press", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "incline-db-press", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "machine-chest-press", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "cable-lateral-raise", "sets": 3, "repMin": 12, "repMax": 15 },
+            { "exerciseId": "cable-triceps-pushdown", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "overhead-cable-triceps-extension", "sets": 3, "repMin": 10, "repMax": 15 }
+          ]
+        },
+        {
+          "id": "ppl-pull",
+          "name": "Pull",
+          "slots": [
+            { "exerciseId": "pull-up", "sets": 3, "repMin": 6, "repMax": 10 },
+            { "exerciseId": "barbell-row", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "chest-supported-row", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "lat-pulldown", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "rear-delt-fly", "sets": 3, "repMin": 12, "repMax": 15 },
+            { "exerciseId": "ez-bar-curl", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "db-curl", "sets": 3, "repMin": 10, "repMax": 15 }
+          ]
+        },
+        {
+          "id": "ppl-legs",
+          "name": "Legs",
+          "slots": [
+            { "exerciseId": "barbell-back-squat", "sets": 3, "repMin": 6, "repMax": 10 },
+            { "exerciseId": "romanian-deadlift", "sets": 3, "repMin": 8, "repMax": 12 },
+            { "exerciseId": "leg-press", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "seated-leg-curl", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "leg-extension", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "standing-calf-raise", "sets": 3, "repMin": 10, "repMax": 15 },
+            { "exerciseId": "cable-crunch", "sets": 3, "repMin": 10, "repMax": 15 }
+          ]
+        }
       ]
     }
   ],
