@@ -1,6 +1,13 @@
+import { useState } from "react";
 import { navigate } from "../router";
 import { useRoutine } from "../useRoutine";
-import { sessionById, useAppState } from "../store";
+import {
+  activeSession,
+  discardSession,
+  reopenSession,
+  sessionById,
+  useAppState
+} from "../store";
 import { findDay, findExercise } from "../routine";
 
 export function formatSessionDate(iso: string): string {
@@ -16,6 +23,8 @@ export function SessionView({ id }: { id: string }) {
   const { routine } = useRoutine();
   const state = useAppState();
   const session = sessionById(id, state);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [err, setErr] = useState<string>();
 
   if (!session) {
     return (
@@ -28,6 +37,8 @@ export function SessionView({ id }: { id: string }) {
 
   const day = routine ? findDay(routine, session.dayId) : undefined;
   const totalSets = session.exercises.reduce((n, l) => n + l.sets.length, 0);
+  const busy = activeSession(state);
+  const canEdit = Boolean(session.finishedAt) && !session.editing;
 
   return (
     <>
@@ -39,6 +50,52 @@ export function SessionView({ id }: { id: string }) {
         {" · "}
         {totalSets} set{totalSets === 1 ? "" : "s"}
       </p>
+
+      {session.editing && (
+        <p className="dim small">Open for editing on the Today screen.</p>
+      )}
+
+      {canEdit && (
+        <div className="session-actions">
+          <button
+            className="ghost"
+            onClick={() => {
+              try {
+                reopenSession(session.id);
+                navigate("#/today");
+              } catch (e) {
+                setErr((e as Error).message);
+              }
+            }}
+          >
+            Reopen for editing
+          </button>
+          {!confirmDelete ? (
+            <button className="ghost danger" onClick={() => setConfirmDelete(true)}>
+              Delete workout
+            </button>
+          ) : (
+            <>
+              <button className="ghost" onClick={() => setConfirmDelete(false)}>
+                Keep it
+              </button>
+              <button
+                className="danger"
+                onClick={() => {
+                  discardSession(session.id);
+                  navigate("#/history");
+                }}
+              >
+                Delete for good
+              </button>
+            </>
+          )}
+        </div>
+      )}
+      {busy && canEdit && (
+        <p className="dim small">Finish your current workout to edit this one.</p>
+      )}
+      {err && <div className="edit-banner warn">{err}</div>}
 
       {session.exercises.map((log, i) => {
         const ex = routine ? findExercise(routine, log.exerciseId) : undefined;

@@ -622,6 +622,15 @@ button.ghost.small,
   font-size: 0.82rem;
   font-style: italic;
 }
+.session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 4px;
+}
+.ghost.danger {
+  color: var(--danger);
+}
 .alt-list {
   list-style: none;
   padding: 0;

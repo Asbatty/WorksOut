@@ -3,9 +3,9 @@
 // logged set is never lost. Components read it with useAppState().
 
 import { useSyncExternalStore } from "react";
-import type { AppState, ExerciseLog, Profile, Routine, SetLog } from "./types";
+import type { AppState, ExerciseLog, Profile, Routine, Session, SetLog } from "./types";
 import { loadState, saveState, uid } from "./storage";
-import { advancedPosition, positionAfterDay } from "./schedule";
+import { advancedPosition, cycleIndex, positionAfterDay } from "./schedule";
 import { resolvedExerciseId, slotKey } from "./routine";
 
 let state: AppState = loadState();
@@ -62,7 +62,21 @@ export function clearPersistentSwap(dayId: string, slotIndex: number) {
 
 /** The unfinished session, if the app was closed mid-workout. */
 export function activeSession(s: AppState = state) {
-  return s.sessions.find((sess) => !sess.finishedAt);
+  // An unfinished workout, or a finished one currently reopened for editing.
+  return s.sessions.find((sess) => !sess.finishedAt || sess.editing);
+}
+
+/**
+ * Most recently finished session (ignores one reopened for editing). Ties on the
+ * timestamp fall back to array order, where later means more recent.
+ */
+export function lastFinishedSession(s: AppState = state): Session | undefined {
+  let latest: Session | undefined;
+  for (const sess of s.sessions) {
+    if (!sess.finishedAt || sess.editing) continue;
+    if (!latest || sess.finishedAt >= latest.finishedAt!) latest = sess;
+  }
+  return latest;
 }
 
 export function sessionById(id: string, s: AppState = state) {
@@ -179,25 +193,88 @@ export function swapInSession(sessionId: string, exIndex: number, newExerciseId:
   );
 }
 
-/** Finish the workout: stamp finishedAt and advance the cycle. */
+/**
+ * Advance the cycle for a session that hasn't advanced it yet: one step if it's
+ * the current cycle day, otherwise to the slot right after that day ("do a
+ * different day"). Records where the cycle was so the finish can be undone.
+ */
+function advanceCycleFor(s: AppState, routine: Routine, sess: Session): AppState {
+  const idx = cycleIndex(s, routine);
+  const isCurrent = routine.cycle[idx] === sess.dayId;
+  const nextPos = isCurrent
+    ? advancedPosition(s, routine)
+    : positionAfterDay(routine, sess.dayId);
+  return {
+    ...mapSession(s, sess.id, (x) => ({
+      ...x,
+      cycleAdvanced: true,
+      prevCyclePosition: idx
+    })),
+    cyclePosition: nextPos
+  };
+}
+
+/** Finish a fresh workout: stamp finishedAt and advance the cycle. */
 export function finishSession(routine: Routine, sessionId: string) {
   set((s) => {
     const sess = s.sessions.find((x) => x.id === sessionId);
     if (!sess) return s;
-    const isCurrent = routine.cycle[
-      ((s.cyclePosition % routine.cycle.length) + routine.cycle.length) % routine.cycle.length
-    ] === sess.dayId;
-    const nextPos = isCurrent
-      ? advancedPosition(s, routine)
-      : positionAfterDay(routine, sess.dayId);
+    const stamped = mapSession(s, sessionId, (x) => ({
+      ...x,
+      finishedAt: new Date().toISOString()
+    }));
+    // If this session already advanced the cycle (it's being re-finished after
+    // an edit), leave the schedule alone.
+    if (sess.cycleAdvanced) return stamped;
+    return advanceCycleFor(stamped, routine, sess);
+  });
+}
+
+/**
+ * Reopen a finished workout for editing. If it's the most recent workout this
+ * also undoes the finish: the cycle rewinds to where it was, so finishing again
+ * (or discarding) leaves the schedule consistent. Older workouts are edited in
+ * place with no schedule change and keep their original date.
+ * Throws if another workout is currently in progress.
+ */
+export function reopenSession(sessionId: string) {
+  if (state.sessions.some((x) => (!x.finishedAt || x.editing) && x.id !== sessionId)) {
+    throw new Error("Finish the workout you have in progress first.");
+  }
+  set((s) => {
+    const sess = s.sessions.find((x) => x.id === sessionId);
+    if (!sess || !sess.finishedAt) return s;
+    const isLatest = lastFinishedSession(s)?.id === sessionId;
+    const rewind =
+      isLatest && sess.cycleAdvanced === true && typeof sess.prevCyclePosition === "number";
     return {
-      ...mapSession(s, sessionId, (x) => ({ ...x, finishedAt: new Date().toISOString() })),
-      cyclePosition: nextPos
+      ...mapSession(s, sessionId, (x) => ({
+        ...x,
+        editing: true,
+        ...(rewind ? { cycleAdvanced: false } : {})
+      })),
+      cyclePosition: rewind ? (sess.prevCyclePosition as number) : s.cyclePosition
     };
   });
 }
 
-/** Throw away an unfinished session (e.g. started by mistake). */
+/** Finish editing a reopened workout: clear the editing flag, keep the date. */
+export function saveEdits(routine: Routine, sessionId: string) {
+  set((s) => {
+    const sess = s.sessions.find((x) => x.id === sessionId);
+    if (!sess) return s;
+    const cleared = mapSession(s, sessionId, (x) => ({ ...x, editing: false }));
+    // If reopening rewound the cycle (this was the latest workout), re-apply the
+    // advance now. Otherwise it's an older workout — leave the schedule alone.
+    if (sess.cycleAdvanced) return cleared;
+    return advanceCycleFor(cleared, routine, sess);
+  });
+}
+
+/**
+ * Throw away a session. Used for an unfinished workout started by mistake, and
+ * (via the session view) to delete a logged workout outright.
+ */
 export function discardSession(sessionId: string) {
   set((s) => ({ ...s, sessions: s.sessions.filter((x) => x.id !== sessionId) }));
 }

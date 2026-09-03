@@ -117,6 +117,15 @@ export interface Session {
   startedAt: string; // ISO
   finishedAt?: string;
   exercises: ExerciseLog[];
+  // cyclePosition just before finishing this session advanced it. Lets a
+  // finish be undone (reopen the latest workout rewinds the schedule to here).
+  prevCyclePosition?: number;
+  // True once finishing this session has advanced the cycle.
+  cycleAdvanced?: boolean;
+  // True while a previously-finished session is reopened for editing. It keeps
+  // its finishedAt (so it still shows in History/Calendar) but also counts as
+  // the active session on Today.
+  editing?: boolean;
 }
 
 export interface Profile {

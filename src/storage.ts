@@ -80,7 +80,15 @@ export function migrate(raw: unknown): AppState {
   const merged: AppState = {
     schemaVersion: SCHEMA_VERSION,
     profile: { ...base.profile, ...(obj.profile as object) },
-    sessions: Array.isArray(obj.sessions) ? (obj.sessions as Session[]) : [],
+    sessions: Array.isArray(obj.sessions)
+      ? (obj.sessions as Session[]).map((s) =>
+          // Sessions finished before the undo feature already advanced the
+          // cycle; mark them so re-finishing after an edit won't advance again.
+          s.finishedAt && s.cycleAdvanced === undefined
+            ? { ...s, cycleAdvanced: true }
+            : s
+        )
+      : [],
     cyclePosition: typeof obj.cyclePosition === "number" ? obj.cyclePosition : 0,
     swaps:
       obj.swaps && typeof obj.swaps === "object"

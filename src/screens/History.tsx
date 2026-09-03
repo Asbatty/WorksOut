@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { navigate } from "../router";
 import { useRoutine } from "../useRoutine";
-import { useAppState } from "../store";
+import { reopenSession, useAppState } from "../store";
 import { findDay, findExercise } from "../routine";
 import { formatSessionDate } from "./SessionView";
 
@@ -79,12 +79,29 @@ export function History() {
                       </div>
                     );
                   })}
-                  <button
-                    className="ghost small"
-                    onClick={() => navigate(`#/session/${s.id}`)}
-                  >
-                    Open full view
-                  </button>
+                  <div className="session-actions">
+                    <button
+                      className="ghost small"
+                      onClick={() => navigate(`#/session/${s.id}`)}
+                    >
+                      Open full view
+                    </button>
+                    {s.finishedAt && !s.editing && (
+                      <button
+                        className="ghost small"
+                        onClick={() => {
+                          try {
+                            reopenSession(s.id);
+                            navigate("#/today");
+                          } catch (e) {
+                            alert((e as Error).message);
+                          }
+                        }}
+                      >
+                        Reopen &amp; edit
+                      </button>
+                    )}
+                  </div>
                 </>
               )}
             </div>

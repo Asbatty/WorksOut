@@ -30,6 +30,19 @@ Do this on the Galaxy S24 Ultra after a deploy, one-handed, standing up.
 - [ ] Finish workout: confirmation shows the logged set count. After finishing,
       Today rolls to the next day and the cycle number advances.
 
+## Undo / edit a finished workout
+
+- [ ] Finish a workout. On Today, tap **Reopen last workout** — it comes back
+      as an editable workout and the cycle number goes back.
+- [ ] Change a set, tap **Save changes**. The cycle advances again and the
+      workout keeps its original date in History/Calendar.
+- [ ] Open an older session (History → expand → **Reopen & edit**, or the
+      session view → **Reopen for editing**). Edit and save — the schedule
+      does not move.
+- [ ] Session view → **Delete workout** → confirm removes it entirely.
+- [ ] With a workout in progress, reopening another one is refused with a
+      message.
+
 ## Swap an exercise
 
 - [ ] Tap ⇄ on an exercise. The sheet lists alternatives with equipment tags.

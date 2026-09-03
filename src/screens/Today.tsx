@@ -5,6 +5,9 @@ import {
   activeSession,
   discardSession,
   finishSession,
+  lastFinishedSession,
+  reopenSession,
+  saveEdits,
   setExerciseNote,
   setPersistentSwap,
   skipWorkout,
@@ -164,9 +167,28 @@ function PlannedDay({ routine }: { routine: Routine }) {
             Skip this workout
           </button>
           <DifferentDay routine={routine} />
+          <ReopenLast routine={routine} />
         </div>
       </div>
     </>
+  );
+}
+
+/** "Undo" the last finished workout: reopen it for editing and rewind the
+ *  cycle to where it was. Only shown when nothing is in progress. */
+function ReopenLast({ routine }: { routine: Routine }) {
+  const state = useAppState();
+  const last = lastFinishedSession(state);
+  if (!last) return null;
+  const dayName = routine.days.find((d) => d.id === last.dayId)?.name ?? "workout";
+  const when = new Date(last.finishedAt!).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric"
+  });
+  return (
+    <button className="ghost" onClick={() => reopenSession(last.id)}>
+      Reopen last workout · {dayName}, {when}
+    </button>
   );
 }
 
@@ -231,6 +253,8 @@ function ActiveWorkout({ routine, session }: { routine: Routine; session: Sessio
 
   const day = routine.days.find((d) => d.id === session.dayId);
   const num = workoutNumber(state, routine);
+  // A previously-finished workout reopened from History / "Reopen last workout".
+  const editing = Boolean(session.editing);
 
   const warmups = day ? warmupSlots(routine, day.slots) : new Set<number>();
 
@@ -251,22 +275,28 @@ function ActiveWorkout({ routine, session }: { routine: Routine; session: Sessio
       <header className="day-head">
         <h1>{day?.name ?? "Workout"}</h1>
         <span className="sub">
-          Workout {num} of {routine.cycle.length}
+          {editing
+            ? `Editing · ${new Date(session.finishedAt ?? session.startedAt).toLocaleDateString()}`
+            : `Workout ${num} of ${routine.cycle.length}`}
         </span>
       </header>
 
       <div className="resume-banner">
-        In progress · every set is saved automatically
-        <button
-          className="ghost small"
-          onClick={() => {
-            if (confirm("Discard this workout? Nothing will be logged.")) {
-              discardSession(session.id);
-            }
-          }}
-        >
-          Discard
-        </button>
+        {editing
+          ? "Editing a finished workout · changes save automatically"
+          : "In progress · every set is saved automatically"}
+        {!editing && (
+          <button
+            className="ghost small"
+            onClick={() => {
+              if (confirm("Discard this workout? Nothing will be logged.")) {
+                discardSession(session.id);
+              }
+            }}
+          >
+            Discard
+          </button>
+        )}
       </div>
 
       <div className="exercise-list">
@@ -400,7 +430,17 @@ function ActiveWorkout({ routine, session }: { routine: Routine; session: Sessio
       </div>
 
       <div className="action-stack">
-        {!confirming ? (
+        {editing ? (
+          <button
+            className="primary big"
+            onClick={() => {
+              saveEdits(routine, session.id);
+              navigate("#/today");
+            }}
+          >
+            Save changes
+          </button>
+        ) : !confirming ? (
           <button className="primary big" onClick={() => setConfirming(true)}>
             Finish workout
           </button>

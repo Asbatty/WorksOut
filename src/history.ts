@@ -38,7 +38,9 @@ export function exerciseHistory(
 ): HistoryEntry[] {
   const out: HistoryEntry[] = [];
   for (const session of sessions) {
-    if (!session.finishedAt) continue;
+    // Skip unfinished workouts and any finished one currently being re-edited,
+    // so a suggestion never leans on a session that's still in flux.
+    if (!session.finishedAt || session.editing) continue;
     for (const log of session.exercises) {
       if (log.exerciseId !== exerciseId) continue;
       const sets = log.sets.filter(isWorkingSet);
