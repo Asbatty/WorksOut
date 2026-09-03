@@ -7,7 +7,7 @@ the phone; there is no backend and no account.
 ## Install on Android (Samsung Galaxy S24 Ultra)
 
 1. Open the deployed URL in **Chrome**:
-   `https://<your-user>.github.io/workout-app/`
+   `https://<your-user>.github.io/WorksOut/`
 2. Tap the **⋮** menu → **Add to Home screen** → **Install**.
 3. Launch it from the home screen. It runs full-screen and works with no
    signal once it has loaded a first time.
@@ -53,7 +53,7 @@ swaps in its contents. Do this before clearing data or switching phones.
 
 ```bash
 npm install
-npm run dev        # dev server at http://localhost:5173/workout-app/
+npm run dev        # dev server at http://localhost:5173/WorksOut/
 npm run build      # production build into dist/
 npm run preview    # serve the production build
 npm test           # unit tests for suggest.ts and schedule.ts

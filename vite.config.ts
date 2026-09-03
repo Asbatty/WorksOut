@@ -2,9 +2,9 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
-// The app is served from https://<user>.github.io/workout-app/ on GitHub Pages,
-// so every asset URL must be prefixed with the repo name.
-const BASE = "/workout-app/";
+// The app is served from https://<user>.github.io/WorksOut/ on GitHub Pages,
+// so every asset URL must be prefixed with the repo name (case-sensitive).
+const BASE = "/WorksOut/";
 
 export default defineConfig({
   base: BASE,
