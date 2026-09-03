@@ -339,11 +339,20 @@ button.ghost:active,
   font-size: 1.02rem;
   font-weight: 600;
 }
-.swap-btn {
+.swap-btn,
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-width: var(--tap);
   min-height: var(--tap);
+  padding: 0;
   font-size: 1.2rem;
   background: var(--surface-2);
+}
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
 }
 .exercise-subline {
   color: var(--text-dim);

@@ -24,6 +24,15 @@ import { suggestWeight } from "../suggest";
 import { SetRow } from "../components/SetRow";
 import type { Exercise, Pattern, ProgramSlot, Routine, Session } from "../types";
 
+/** Paper-plane icon: opens the exercise detail page (cue, muscles, video). */
+function PaperPlane() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
+    </svg>
+  );
+}
+
 const COMPOUND_PATTERNS: Pattern[] = [
   "horizontal-push",
   "vertical-push",
@@ -337,7 +346,14 @@ function ActiveWorkout({
                   <span className="ex-name">{ex.name}</span>
                 </button>
                 <button
-                  className="swap-btn"
+                  className="icon-btn"
+                  aria-label={`Form cue and video for ${ex.name}`}
+                  onClick={() => navigate(`#/exercise/${ex.id}`)}
+                >
+                  <PaperPlane />
+                </button>
+                <button
+                  className="icon-btn"
                   aria-label={`Swap ${ex.name}`}
                   onClick={() => setSwapFor(exIndex)}
                 >
