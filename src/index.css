@@ -310,28 +310,31 @@ button.ghost {
 
 /* ---- Stepper ---- */
 .stepper {
-  flex: 1;
+  display: block;
   min-width: 0;
 }
 .stepper-label {
   display: block;
   font-size: 0.72rem;
   color: var(--text-dim);
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 .stepper-controls {
   display: flex;
   align-items: stretch;
-  gap: 4px;
+  gap: 6px;
+  min-width: 0;
 }
 .stepper-controls button {
-  min-width: 44px;
+  flex: 0 0 auto;
+  width: 60px;
+  min-width: 60px;
   padding: 0;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   background: var(--surface-2);
 }
 .stepper-value {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
   display: flex;
   align-items: center;
@@ -348,47 +351,74 @@ button.ghost {
   border: none;
   color: var(--text);
   font: inherit;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-variant-numeric: tabular-nums;
   text-align: center;
-  padding: 10px 0;
+  padding: 12px 4px;
   outline: none;
 }
 .stepper-suffix {
+  flex: 0 0 auto;
   color: var(--text-dim);
   font-size: 0.78rem;
-  padding-right: 6px;
+  padding-right: 8px;
 }
 
-/* ---- Set row ---- */
+/* ---- Set row (stacked: header line, then weight, then reps) ---- */
 .set-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  padding: 8px 0;
+  padding: 12px 0;
   border-top: 1px solid var(--border);
 }
 .set-row.done {
-  opacity: 0.85;
+  opacity: 0.8;
+}
+.set-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
 }
 .set-num {
-  width: 18px;
-  text-align: center;
   color: var(--text-dim);
-  font-size: 0.85rem;
-  padding-bottom: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.set-row .stepper + .stepper {
+  margin-top: 8px;
 }
 .check {
-  min-width: var(--tap);
-  min-height: var(--tap);
-  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 0.95rem;
   color: var(--text-dim);
   background: var(--surface-2);
+}
+.check-mark {
+  font-size: 1rem;
 }
 .check.on {
   background: var(--good);
   color: #06210f;
   border-color: transparent;
+}
+
+/* Editor packs three small steppers per slot; keep them on one row. */
+.slot-steppers {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+.slot-steppers .stepper-controls button {
+  width: 40px;
+  min-width: 40px;
+  font-size: 1.2rem;
+}
+.slot-steppers .stepper-value input {
+  font-size: 1rem;
+  padding: 10px 2px;
 }
 
 /* ---- Notes ---- */
@@ -783,8 +813,6 @@ button.ghost.small,
   font-weight: 600;
 }
 .slot-steppers {
-  display: flex;
-  gap: 6px;
   margin-top: 8px;
 }
 .add-slot {

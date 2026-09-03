@@ -1,4 +1,6 @@
-// One row in the Today screen: weight stepper, reps stepper, done checkmark.
+// One set in the Today screen. On a phone there isn't room for weight + reps +
+// a checkmark on one line, so the two steppers stack full-width under a header
+// row that holds the set number and the done toggle.
 
 import { Stepper } from "./Stepper";
 import type { SetLog } from "../types";
@@ -23,7 +25,27 @@ export function SetRow({
 }: SetRowProps) {
   return (
     <div className={set.done ? "set-row done" : "set-row"}>
-      <span className="set-num">{index + 1}</span>
+      <div className="set-row-head">
+        <span className="set-num">Set {index + 1}</span>
+        <button
+          type="button"
+          className={set.done ? "check on" : "check"}
+          aria-label={set.done ? `Set ${index + 1} done` : `Mark set ${index + 1} done`}
+          aria-pressed={set.done ?? false}
+          onClick={() => {
+            const done = !set.done;
+            // A fast "did it" tap with no reps entered yet borrows last
+            // session's rep count (the ghost) so something real gets recorded.
+            onChange(
+              done && set.reps === 0 && ghostReps ? { done, reps: ghostReps } : { done }
+            );
+          }}
+        >
+          <span className="check-mark">✓</span>
+          <span className="check-label">{set.done ? "Done" : "Done?"}</span>
+        </button>
+      </div>
+
       <Stepper
         label="Weight"
         value={set.weight}
@@ -39,22 +61,6 @@ export function SetRow({
         ghost={ghostReps}
         onChange={(reps) => onChange({ reps })}
       />
-      <button
-        type="button"
-        className={set.done ? "check on" : "check"}
-        aria-label={set.done ? `Set ${index + 1} done` : `Mark set ${index + 1} done`}
-        aria-pressed={set.done ?? false}
-        onClick={() => {
-          const done = !set.done;
-          // A fast "did it" tap with no reps entered yet borrows last session's
-          // rep count (the ghost) so something real gets recorded.
-          onChange(
-            done && set.reps === 0 && ghostReps ? { done, reps: ghostReps } : { done }
-          );
-        }}
-      >
-        ✓
-      </button>
     </div>
   );
 }
