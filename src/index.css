@@ -167,6 +167,11 @@ button.ghost:active,
 .rest-timer.running {
   border-color: var(--accent);
 }
+/* Clear the finish-workout confirmation bar so both stay readable. */
+.rest-timer.raised {
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 180px);
+  transition: bottom 0.15s ease;
+}
 .rest-time {
   font-variant-numeric: tabular-nums;
   font-weight: 700;

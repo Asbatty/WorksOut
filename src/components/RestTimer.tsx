@@ -17,6 +17,7 @@ export function RestTimer() {
   const startedAt = state.restStartedAt;
   const running = startedAt != null;
   const [, force] = useState(0);
+  const [raised, setRaised] = useState(false);
 
   // Re-render once a second while the stopwatch is running.
   useEffect(() => {
@@ -25,13 +26,26 @@ export function RestTimer() {
     return () => window.clearInterval(iv);
   }, [running]);
 
+  // Lift clear of the finish-workout confirmation bar while it's open.
+  useEffect(() => {
+    const onConfirm = (e: Event) =>
+      setRaised(Boolean((e as CustomEvent).detail));
+    window.addEventListener("finish-confirm", onConfirm);
+    return () => window.removeEventListener("finish-confirm", onConfirm);
+  }, []);
+
   // Only clutter the screen during a workout, or whenever it's actually running.
   if (!running && !activeSession(state)) return null;
 
   const elapsed = running ? Date.now() - startedAt! : 0;
 
   return (
-    <div className={running ? "rest-timer running" : "rest-timer"} role="timer">
+    <div
+      className={
+        "rest-timer" + (running ? " running" : "") + (raised ? " raised" : "")
+      }
+      role="timer"
+    >
       {running ? (
         <>
           <span className="rest-time" aria-label="rest elapsed">

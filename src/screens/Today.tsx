@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { navigate } from "../router";
 import { useRoutine } from "../useRoutine";
 import {
@@ -295,6 +295,14 @@ function ActiveWorkout({
       next.has(i) ? next.delete(i) : next.add(i);
       return next;
     });
+
+  // Tell the floating rest timer to lift clear of the finish-confirm bar.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("finish-confirm", { detail: confirming }));
+    return () => {
+      window.dispatchEvent(new CustomEvent("finish-confirm", { detail: false }));
+    };
+  }, [confirming]);
 
   return (
     <>
