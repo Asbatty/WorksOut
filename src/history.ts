@@ -42,7 +42,7 @@ export function exerciseHistory(
     // so a suggestion never leans on a session that's still in flux.
     if (!session.finishedAt || session.editing) continue;
     for (const log of session.exercises) {
-      if (log.exerciseId !== exerciseId) continue;
+      if (log.exerciseId !== exerciseId || log.skipped) continue;
       const sets = log.sets.filter(isWorkingSet);
       if (!sets.length) continue;
       out.push({

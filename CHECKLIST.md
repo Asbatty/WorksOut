@@ -25,6 +25,11 @@ Do this on the Galaxy S24 Ultra after a deploy, one-handed, standing up.
 - [ ] Tick sets done. Reps default from last session's ghost value when you
       tick without typing.
 - [ ] Add a note to one exercise.
+- [ ] ⋯ on an exercise → "Skip this exercise today". Card dims, shows
+      "Skipped", collapses. ⋯ → "Put this exercise back" restores it.
+- [ ] Finish summary reads "X of Y exercises done, N sets logged" and
+      ignores skipped ones. Skipped exercises show as "skipped" (not
+      "× 0") in History and the session view.
 - [ ] Force-close the app mid-workout, reopen: Today shows the in-progress
       workout with the "In progress" banner and all logged sets intact.
 - [ ] Finish workout: confirmation shows the logged set count. After finishing,

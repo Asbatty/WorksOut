@@ -35,7 +35,10 @@ export function SessionView({ id }: { id: string }) {
     );
   }
 
-  const totalSets = session.exercises.reduce((n, l) => n + l.sets.length, 0);
+  const totalSets = session.exercises.reduce(
+    (n, l) => (l.skipped ? n : n + l.sets.filter((s) => s.reps > 0).length),
+    0
+  );
   const busy = activeSession(state);
   const canEdit = Boolean(session.finishedAt) && !session.editing;
 
@@ -98,8 +101,10 @@ export function SessionView({ id }: { id: string }) {
 
       {session.exercises.map((log, i) => {
         const ex = routine ? findExercise(routine, log.exerciseId) : undefined;
+        const workingSets = log.sets.filter((s) => s.reps > 0);
+        const notPerformed = log.skipped || workingSets.length === 0;
         return (
-          <div key={i} className="card">
+          <div key={i} className={notPerformed ? "card dim-card" : "card"}>
             <button
               className="link-title"
               onClick={() => navigate(`#/exercise/${log.exerciseId}`)}
@@ -109,14 +114,18 @@ export function SessionView({ id }: { id: string }) {
             {log.exerciseId !== log.slotExerciseId && (
               <span className="swapped-tag">swapped</span>
             )}
-            <div className="history-sets session-sets">
-              {log.sets.map((s, j) => (
-                <span key={j} className="set-pill">
-                  {s.weight}
-                  {ex?.loadType === "assisted" ? " assist" : " lb"} × {s.reps}
-                </span>
-              ))}
-            </div>
+            {notPerformed ? (
+              <p className="dim small">{log.skipped ? "Skipped" : "Not performed"}</p>
+            ) : (
+              <div className="history-sets session-sets">
+                {workingSets.map((s, j) => (
+                  <span key={j} className="set-pill">
+                    {s.weight}
+                    {ex?.loadType === "assisted" ? " assist" : " lb"} × {s.reps}
+                  </span>
+                ))}
+              </div>
+            )}
             {log.note && <p className="history-note">{log.note}</p>}
           </div>
         );

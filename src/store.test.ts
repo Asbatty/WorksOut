@@ -26,10 +26,13 @@ const {
   createProfile,
   switchProfile,
   deleteProfile,
-  profileList
+  profileList,
+  updateSet,
+  setExerciseSkipped
 } = await import("./store");
 const { defaultState } = await import("./storage");
 const { cycleIndex } = await import("./schedule");
+const { exerciseHistory } = await import("./history");
 import type { Routine } from "./types";
 
 const routine: Routine = {
@@ -157,5 +160,24 @@ describe("local profiles", () => {
     expect(profileList()).toHaveLength(2);
     deleteProfile(andrewId);
     expect(profileList().map((p) => p.name)).toEqual(["Sam"]);
+  });
+});
+
+describe("skipped exercises", () => {
+  it("are kept out of an exercise's history", () => {
+    const id = startSession(routine, "upper-a", () => 100);
+    updateSet(id, 0, 0, { weight: 100, reps: 8 });
+    setExerciseSkipped(id, 0, true);
+    finishSession(routine, id);
+    expect(exerciseHistory(getState().sessions, "x")).toHaveLength(0);
+  });
+
+  it("un-skipping restores the exercise to history", () => {
+    const id = startSession(routine, "upper-a", () => 100);
+    updateSet(id, 0, 0, { weight: 100, reps: 8 });
+    setExerciseSkipped(id, 0, true);
+    setExerciseSkipped(id, 0, false);
+    finishSession(routine, id);
+    expect(exerciseHistory(getState().sessions, "x")).toHaveLength(1);
   });
 });

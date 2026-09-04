@@ -9,6 +9,7 @@ import {
   reopenSession,
   saveEdits,
   setExerciseNote,
+  setExerciseSkipped,
   setPersistentSwap,
   skipWorkout,
   startRest,
@@ -278,9 +279,14 @@ function ActiveWorkout({
   const warmups = day ? warmupSlots(routine, day.slots) : new Set<number>();
 
   const completedSets = session.exercises.reduce(
-    (sum, log) => sum + log.sets.filter((s) => s.done || s.reps > 0).length,
+    (sum, log) =>
+      log.skipped ? sum : sum + log.sets.filter((s) => s.done || s.reps > 0).length,
     0
   );
+  const doneExercises = session.exercises.filter(
+    (log) => !log.skipped && log.sets.some((s) => s.done || s.reps > 0)
+  ).length;
+  const plannedExercises = session.exercises.filter((log) => !log.skipped).length;
 
   const toggle = (i: number) =>
     setExpanded((prev) => {
@@ -330,19 +336,24 @@ function ActiveWorkout({
             : undefined;
           const last = lastAppearance(state.sessions, log.exerciseId);
           const allDone = log.sets.length > 0 && log.sets.every((s) => s.done);
+          const skipped = Boolean(log.skipped);
+          const open = isOpen && !skipped;
 
           return (
             <div
               key={exIndex}
-              className={allDone ? "card exercise done" : "card exercise"}
+              className={
+                "card exercise" + (skipped ? " skipped" : allDone ? " done" : "")
+              }
             >
               <div className="exercise-head">
                 <button
                   className="disclosure"
-                  aria-expanded={isOpen}
+                  aria-expanded={open}
+                  disabled={skipped}
                   onClick={() => toggle(exIndex)}
                 >
-                  <span className={isOpen ? "caret open" : "caret"}>▸</span>
+                  <span className={open ? "caret open" : "caret"}>▸</span>
                   <span className="ex-name">{ex.name}</span>
                 </button>
                 <button
@@ -354,36 +365,42 @@ function ActiveWorkout({
                 </button>
                 <button
                   className="icon-btn"
-                  aria-label={`Swap ${ex.name}`}
+                  aria-label={`Options for ${ex.name}`}
                   onClick={() => setSwapFor(exIndex)}
                 >
-                  ⇄
+                  ⋯
                 </button>
               </div>
 
               <div className="exercise-subline">
-                {slot && (
+                {skipped ? (
+                  <span className="skipped-tag">Skipped this session</span>
+                ) : (
                   <>
-                    {log.sets.length} × {slot.repMin}–{slot.repMax}
+                    {slot && (
+                      <>
+                        {log.sets.length} × {slot.repMin}–{slot.repMax}
+                      </>
+                    )}
+                    {suggestion && (
+                      <>
+                        {"  ·  "}
+                        {suggestion.weight}
+                        {ex.loadType === "assisted" ? " assist" : " lb"}{" "}
+                        <span className="dim">
+                          {suggestion.isGuess ? "suggested" : "target"}
+                          {LOAD_HINT[ex.loadType] ? ` (${LOAD_HINT[ex.loadType]})` : ""}
+                        </span>
+                      </>
+                    )}
+                    {log.exerciseId !== log.slotExerciseId && (
+                      <span className="swapped-tag">swapped</span>
+                    )}
                   </>
-                )}
-                {suggestion && (
-                  <>
-                    {"  ·  "}
-                    {suggestion.weight}
-                    {ex.loadType === "assisted" ? " assist" : " lb"}{" "}
-                    <span className="dim">
-                      {suggestion.isGuess ? "suggested" : "target"}
-                      {LOAD_HINT[ex.loadType] ? ` (${LOAD_HINT[ex.loadType]})` : ""}
-                    </span>
-                  </>
-                )}
-                {log.exerciseId !== log.slotExerciseId && (
-                  <span className="swapped-tag">swapped</span>
                 )}
               </div>
 
-              {suggestion && isOpen && (
+              {suggestion && open && (
                 <div className="suggest-reason">
                   {suggestion.reason}
                   {suggestion.repTarget === "repMin" && slot
@@ -394,11 +411,11 @@ function ActiveWorkout({
                 </div>
               )}
 
-              {warmups.has(exIndex) && !allDone && (
+              {warmups.has(exIndex) && !allDone && !skipped && (
                 <div className="warmup-note">Warm up first — these sets aren't logged</div>
               )}
 
-              {isOpen && (
+              {open && (
                 <>
                   {log.sets.map((set, setIndex) => (
                     <SetRow
@@ -431,10 +448,15 @@ function ActiveWorkout({
               )}
 
               {swapFor === exIndex && (
-                <SwapSheet
+                <OptionsSheet
                   routine={routine}
                   currentId={log.exerciseId}
                   slotExerciseId={log.slotExerciseId}
+                  skipped={skipped}
+                  onToggleSkip={() => {
+                    setExerciseSkipped(session.id, exIndex, !skipped);
+                    setSwapFor(null);
+                  }}
                   onClose={() => setSwapFor(null)}
                   onPick={(newId, persist) => {
                     const newEx = findExercise(routine, newId);
@@ -475,8 +497,10 @@ function ActiveWorkout({
         ) : (
           <div className="confirm-bar">
             <span>
-              Finish with <strong>{completedSets}</strong> set
-              {completedSets === 1 ? "" : "s"} logged?
+              Finish? <strong>{doneExercises}</strong> of{" "}
+              <strong>{plannedExercises}</strong> exercise
+              {plannedExercises === 1 ? "" : "s"} done, {completedSets} set
+              {completedSets === 1 ? "" : "s"} logged.
             </span>
             <div className="confirm-actions">
               <button className="ghost" onClick={() => setConfirming(false)}>
@@ -499,16 +523,20 @@ function ActiveWorkout({
   );
 }
 
-function SwapSheet({
+function OptionsSheet({
   routine,
   currentId,
   slotExerciseId,
+  skipped,
+  onToggleSkip,
   onClose,
   onPick
 }: {
   routine: Routine;
   currentId: string;
   slotExerciseId: string;
+  skipped: boolean;
+  onToggleSkip: () => void;
   onClose: () => void;
   onPick: (exerciseId: string, persist: boolean) => void;
 }) {
@@ -530,27 +558,44 @@ function SwapSheet({
 
   return (
     <div className="sheet">
-      <p className="sheet-title">Swap exercise</p>
-      <label className="persist-toggle">
-        <input
-          type="checkbox"
-          checked={persist}
-          onChange={(e) => setPersist(e.target.checked)}
-        />
-        Always use this instead
-      </label>
-      {options.map((e) => (
-        <button key={e.id} className="sheet-item" onClick={() => onPick(e.id, persist)}>
-          <span className="ex-name">{e.name}</span>
-          <span className="equip-tags">
-            {e.equipment.map((eq) => (
-              <span key={eq} className="equip-tag">
-                {eq}
+      <p className="sheet-title">Exercise options</p>
+
+      <button className="sheet-item" onClick={onToggleSkip}>
+        <span className="ex-name">
+          {skipped ? "Put this exercise back" : "Skip this exercise today"}
+        </span>
+      </button>
+
+      {!skipped && (
+        <>
+          <p className="sheet-title small">Swap for</p>
+          <label className="persist-toggle">
+            <input
+              type="checkbox"
+              checked={persist}
+              onChange={(e) => setPersist(e.target.checked)}
+            />
+            Always use this instead
+          </label>
+          {options.map((e) => (
+            <button
+              key={e.id}
+              className="sheet-item"
+              onClick={() => onPick(e.id, persist)}
+            >
+              <span className="ex-name">{e.name}</span>
+              <span className="equip-tags">
+                {e.equipment.map((eq) => (
+                  <span key={eq} className="equip-tag">
+                    {eq}
+                  </span>
+                ))}
               </span>
-            ))}
-          </span>
-        </button>
-      ))}
+            </button>
+          ))}
+        </>
+      )}
+
       <button className="ghost" onClick={onClose}>
         Cancel
       </button>

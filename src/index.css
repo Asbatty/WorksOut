@@ -310,6 +310,35 @@ button.ghost:active,
 .card.exercise.done {
   opacity: 0.72;
 }
+.card.exercise.skipped {
+  opacity: 0.6;
+}
+.card.exercise.skipped .disclosure {
+  opacity: 1;
+}
+.disclosure:disabled {
+  cursor: default;
+}
+.disclosure:disabled .caret {
+  visibility: hidden;
+}
+.skipped-tag {
+  color: var(--warn);
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+.dim-card {
+  opacity: 0.62;
+}
+.history-item.dim {
+  opacity: 0.7;
+}
+.sheet-title.small {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  margin-top: 8px;
+}
 .exercise-head {
   display: flex;
   align-items: center;

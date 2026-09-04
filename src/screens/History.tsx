@@ -34,7 +34,10 @@ export function History() {
       <div className="exercise-list">
         {sessions.map((s) => {
           const isOpen = open === s.id;
-          const totalSets = s.exercises.reduce((n, l) => n + l.sets.length, 0);
+          const totalSets = s.exercises.reduce(
+            (n, l) => (l.skipped ? n : n + l.sets.filter((st) => st.reps > 0).length),
+            0
+          );
           return (
             <div key={s.id} className="card">
               <button
@@ -58,22 +61,33 @@ export function History() {
                 <>
                   {s.exercises.map((log, i) => {
                     const ex = routine ? findExercise(routine, log.exerciseId) : undefined;
+                    const working = log.sets.filter((st) => st.reps > 0);
+                    const notPerformed = log.skipped || working.length === 0;
                     return (
-                      <div key={i} className="history-item">
+                      <div
+                        key={i}
+                        className={notPerformed ? "history-item dim" : "history-item"}
+                      >
                         <span className="ex-name small">
                           {ex?.name ?? log.exerciseId}
                           {log.exerciseId !== log.slotExerciseId && (
                             <span className="swapped-tag">swapped</span>
                           )}
                         </span>
-                        <span className="history-sets">
-                          {log.sets.map((st, j) => (
-                            <span key={j} className="set-pill">
-                              {st.weight}
-                              {ex?.loadType === "assisted" ? " assist" : " lb"} × {st.reps}
-                            </span>
-                          ))}
-                        </span>
+                        {notPerformed ? (
+                          <span className="dim small">
+                            {log.skipped ? "skipped" : "not performed"}
+                          </span>
+                        ) : (
+                          <span className="history-sets">
+                            {working.map((st, j) => (
+                              <span key={j} className="set-pill">
+                                {st.weight}
+                                {ex?.loadType === "assisted" ? " assist" : " lb"} × {st.reps}
+                              </span>
+                            ))}
+                          </span>
+                        )}
                         {log.note && <span className="history-note">{log.note}</span>}
                       </div>
                     );

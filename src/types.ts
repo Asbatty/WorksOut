@@ -134,6 +134,7 @@ export interface ExerciseLog {
   slotExerciseId: string; // the exercise the slot originally called for
   sets: SetLog[];
   note?: string;
+  skipped?: boolean; // user chose not to do this exercise this session
 }
 
 export interface Session {

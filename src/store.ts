@@ -286,6 +286,15 @@ export function setExerciseNote(sessionId: string, exIndex: number, note: string
   );
 }
 
+/** Mark an exercise as skipped (or un-skip it) for this session. */
+export function setExerciseSkipped(sessionId: string, exIndex: number, skipped: boolean) {
+  set((s) =>
+    mapSession(s, sessionId, (sess) =>
+      mapExerciseLog(sess, exIndex, (log) => ({ ...log, skipped }))
+    )
+  );
+}
+
 /** Swap the exercise for one slot within the current session only. */
 export function swapInSession(sessionId: string, exIndex: number, newExerciseId: string, seedWeight: number) {
   set((s) =>
