@@ -267,7 +267,8 @@ function ActiveWorkout({
   dayName: (id: string) => string;
 }) {
   const state = useAppState();
-  const [expanded, setExpanded] = useState<Set<number>>(new Set([0]));
+  // Start with everything collapsed; the user opens what they're working on.
+  const [expanded, setExpanded] = useState<Set<number>>(() => new Set());
   const [confirming, setConfirming] = useState(false);
   const [swapFor, setSwapFor] = useState<number | null>(null);
 
