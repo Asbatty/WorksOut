@@ -4,6 +4,7 @@ import {
   activeSession,
   createProfile,
   deleteProfile,
+  noteBackup,
   profileList,
   replaceState,
   setActiveProgram,
@@ -222,11 +223,21 @@ export function Settings() {
 
       <h2>Your data</h2>
       <div className="card">
+        <p className="dim small block">
+          {state.lastBackupAt
+            ? `Last backup: ${new Date(state.lastBackupAt).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+              })}`
+            : "No backup saved yet — export one and keep it in Files / iCloud / Drive."}
+        </p>
         <button
           className="primary wide"
           onClick={async () => {
             try {
               await exportBackup(state);
+              noteBackup();
               setMsg("Backup exported.");
             } catch (e) {
               setMsg((e as Error).message);

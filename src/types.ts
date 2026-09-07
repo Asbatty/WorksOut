@@ -189,4 +189,7 @@ export interface AppState {
   // --- device-global ---
   routineFileVersion: number; // last version of routine.json seen
   restStartedAt?: number; // epoch ms the rest stopwatch started; absent = stopped
+  onboarded: boolean; // the first-run wizard has been completed or skipped
+  lastBackupAt?: string; // ISO of the last data export; absent = never backed up
+  installReminderDismissed?: boolean; // user dismissed the "add to home screen" nudge
 }

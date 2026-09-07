@@ -32,7 +32,8 @@ const state = (cyclePosition: number): AppState => ({
   activeProgramId: "upper-lower-4",
   swaps: {},
   routineOverlays: {},
-  routineFileVersion: 1
+  routineFileVersion: 1,
+  onboarded: true
 });
 
 describe("cycleIndex", () => {

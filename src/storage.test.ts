@@ -80,4 +80,30 @@ describe("migrate v1 -> v2", () => {
     expect(out.activeProfileId).toBe("a");
     expect(out.otherProfiles.b.profile.name).toBe("Sam");
   });
+
+  it("treats a stored state with logged workouts as already onboarded", () => {
+    const out = migrate({
+      schemaVersion: 3,
+      sessions: [
+        { id: "s1", profileId: "andrew", dayId: "upper-a", startedAt: "x", finishedAt: "y", exercises: [] }
+      ]
+    });
+    expect(out.onboarded).toBe(true);
+  });
+
+  it("leaves a fresh / empty stored state not onboarded", () => {
+    expect(migrate({ schemaVersion: 3, sessions: [] }).onboarded).toBe(false);
+    expect(migrate(null).onboarded).toBe(false);
+  });
+
+  it("respects an explicit onboarded flag and carries lastBackupAt", () => {
+    const out = migrate({
+      schemaVersion: 3,
+      onboarded: true,
+      sessions: [],
+      lastBackupAt: "2026-09-06T00:00:00.000Z"
+    });
+    expect(out.onboarded).toBe(true);
+    expect(out.lastBackupAt).toBe("2026-09-06T00:00:00.000Z");
+  });
 });

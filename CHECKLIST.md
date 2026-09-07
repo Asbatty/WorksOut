@@ -2,6 +2,26 @@
 
 Do this on the Galaxy S24 Ultra after a deploy, one-handed, standing up.
 
+## First-run wizard
+
+Test on a device with no data (new phone, or Settings → Clear all data, or a
+fresh private window).
+
+- [ ] Opening the URL in a browser tab shows the wizard starting on **Add Lift
+      to your home screen**, not Today.
+- [ ] Android: an **Add to home screen** button appears (after a moment) and
+      triggers Chrome's install prompt. Accepting it advances the wizard.
+- [ ] iPhone: Safari shows the Share → Add to Home Screen instructions (no
+      button). In a non-Safari iOS browser the instructions still make sense.
+- [ ] **Skip for now** advances to profile setup. Launching the installed app
+      from the home screen resumes at profile setup (install step skipped).
+- [ ] Name → bodyweight → experience → program, with Back working. **Start
+      lifting** lands on Today with that profile: name in Settings, chosen
+      split active, cycle at day 1.
+- [ ] Relaunch: the wizard does not reappear.
+- [ ] An existing install that already has workouts never sees the wizard after
+      updating.
+
 ## Install & offline
 
 - [ ] Open the GitHub Pages URL in Chrome. Page loads, dark theme, bottom nav.
@@ -44,6 +64,16 @@ Do this on the Galaxy S24 Ultra after a deploy, one-handed, standing up.
 - [ ] Delete the inactive profile (✕ → Delete). The active one can't be
       deleted.
 - [ ] Export data, then Import it — confirmation names the profile count.
+
+## Backup nudge & install reminder
+
+- [ ] If you skipped install in the wizard, a one-time "Add Lift to your home
+      screen" bar shows above the nav. **Got it** dismisses it for good; it
+      does not return next launch.
+- [ ] Finish 3 workouts without exporting: a bar offers **Back up**. Tapping it
+      opens the share sheet; **Later** hides it for the session.
+- [ ] After a successful export the bar is gone and **Settings → Your data**
+      shows "Last backup: <date>".
 
 ## Programs & rest timer
 

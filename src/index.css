@@ -1087,3 +1087,106 @@ button.ghost.small,
 .chart-dot {
   fill: var(--accent);
 }
+
+/* ---- Onboarding (first-run wizard) ---- */
+.onboarding {
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 24px 16px calc(env(safe-area-inset-bottom, 0px) + 24px);
+  overflow-y: auto;
+}
+.onboarding-inner {
+  width: 100%;
+  max-width: 480px;
+  margin: auto 0;
+}
+.onboarding-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.onboarding-dots .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border);
+}
+.onboarding-dots .dot.on {
+  background: var(--accent);
+}
+.onboarding-card h1 {
+  font-size: 1.35rem;
+  margin-bottom: 8px;
+}
+.onboarding-card > .dim {
+  margin-top: 0;
+}
+.onboarding-card .primary.big,
+.onboarding-card .ghost.wide {
+  margin-top: 14px;
+}
+.onboarding-choices {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
+.onboarding-choices .program-opt {
+  text-transform: capitalize;
+}
+.onboarding-nav {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.onboarding-nav .primary.big {
+  flex: 1;
+}
+.install-steps {
+  margin: 12px 0 0;
+  padding-left: 20px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.install-steps li {
+  margin-bottom: 6px;
+}
+.install-steps strong {
+  color: var(--text);
+}
+.ios-share {
+  display: inline-block;
+  vertical-align: -3px;
+  margin: 0 2px;
+  color: var(--accent);
+}
+
+/* ---- App-level reminders (install / backup), above the toast slot ---- */
+.reminder {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 30;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+.reminder > span {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+.reminder-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.reminder-actions .small {
+  min-height: 40px;
+}
