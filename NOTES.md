@@ -34,6 +34,47 @@ npm run preview -- --port 4318
   and *Backup nudge & install reminder* sections on an Android device and an
   iPhone.
 
+## Background: what was asked and decided (2026-09-06/07 session)
+
+Original ask (Andrew):
+
+1. Anyone with the link on their phone should get **their own user**, not the
+   `andrew` one.
+2. **First visit asks who you are** — name, weight, experience, desired program
+   — and sets the app up from that.
+3. A **better way to store user data** so it isn't lost if the site's storage
+   is cleared. Ideas floated: an open-source spreadsheet-style store, or a
+   Google account creating a Google Sheet that syncs periodically as a backup.
+4. Talk the options through with pros/cons *before* building anything.
+
+Clarifications he gave during the discussion:
+
+- **One phone per person.** Multi-device sync is pointless here.
+- **iPhones are in the group.** It should be available to anyone who wants it.
+- He wants **zero infrastructure**: nothing he runs, nothing he owns, no
+  server, no OAuth app. It should just run locally on each user's phone.
+- The **spreadsheet / Google Sheet idea doesn't matter** to him — being able to
+  read the data as a grid was never the point. He just wants users to be able
+  to **actively save their data** so it survives.
+
+Options weighed, and why each landed where it did:
+
+| Option | Verdict |
+|---|---|
+| **A. Keep data on the phone, make it sturdy** — install to home screen (stops browsers auto-wiping it) + `navigator.storage.persist()` + one-tap backup to the user's own iCloud/Drive with nudges | **Chosen.** Only option that needs no server, no account, no OAuth app, and works on iPhone for unlimited users. Weakness: the backup is a manual tap. |
+| B. Auto-save to each user's Google Drive (`drive.file`) | Rejected for now. Genuinely automatic, but Andrew would have to create and *own* a Google Cloud OAuth app and pass Google's verification (privacy policy, domain checks) so strangers don't hit a scary warning. That's "owning something". Keep as the escalation if manual backups prove unreliable. |
+| C. Ship via App Store / Play Store (Capacitor) so the OS backs data up to iCloud/Google automatically | Rejected for now. Truly automatic and no server, but $99/yr Apple + review. The codebase is already kept Capacitor-compatible, so this stays open. |
+| Google **Sheets** specifically (his idea) | Dropped. Would need flattening nested sessions/sets into rows (fragile work) or a JSON blob in a cell (defeats the readable-grid point he didn't care about anyway). |
+| Firebase / Supabase / self-hosted Cloudflare Worker | Rejected — all are "a service Andrew runs/owns", which he explicitly doesn't want. |
+
+Extra decision from the discussion: the **install step must come before profile
+setup**, because on iOS a home-screen web app doesn't reliably share storage
+with the Safari tab — entering data first and installing after can lose it.
+So installing first is correctness, not just UX.
+
+Then: write a memory doc, clone the repo, build it, commit + push the branch,
+open the PR, and keep this file current for work across machines.
+
 ## What this branch does
 
 Goal: the app is shared by link, so a fresh visitor should set *themselves* up
