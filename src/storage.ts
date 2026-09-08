@@ -10,15 +10,19 @@ export const SCHEMA_VERSION = 3 as const;
 /** Program id the app shipped with as its only split before v2. */
 export const LEGACY_PROGRAM_ID = "upper-lower-4";
 
-/** Stable id for the single v1 profile. Extra profiles get their own ids later. */
-export const DEFAULT_PROFILE_ID = "andrew";
+/**
+ * Id of the profile a fresh install starts on. It's neutral ("You") because the
+ * app is shared by link — the first-run wizard fills in the real name, weight and
+ * experience. Extra profiles get their own uid()s.
+ */
+export const DEFAULT_PROFILE_ID = "me";
 
 export function newProfile(): Profile {
   return {
     id: DEFAULT_PROFILE_ID,
-    name: "Andrew",
-    bodyweightLb: 185,
-    experience: "intermediate",
+    name: "You",
+    bodyweightLb: 160,
+    experience: "beginner",
     unit: "lb"
   };
 }
@@ -34,7 +38,8 @@ export function defaultState(): AppState {
     activeProgramId: LEGACY_PROGRAM_ID,
     swaps: {},
     routineOverlays: {},
-    routineFileVersion: 0
+    routineFileVersion: 0,
+    onboarded: false
   };
 }
 
@@ -81,6 +86,10 @@ export function saveState(state: AppState): void {
  *
  * v2 -> v3: local profiles. The existing flat data becomes the active
  * profile; `otherProfiles` starts empty.
+ *
+ * The first-run wizard (`onboarded`) was added later without a version bump: any
+ * stored state that already has logged workouts is treated as onboarded, so
+ * existing installs never see the wizard.
  */
 export function migrate(raw: unknown): AppState {
   const base = defaultState();
@@ -130,7 +139,16 @@ export function migrate(raw: unknown): AppState {
       typeof obj.restStartedAt === "number" &&
       Date.now() - obj.restStartedAt < 2 * 60 * 60 * 1000
         ? obj.restStartedAt
-        : undefined
+        : undefined,
+    // An install with workouts already logged has clearly been set up; only a
+    // genuinely fresh (or empty) install gets the first-run wizard.
+    onboarded:
+      typeof obj.onboarded === "boolean"
+        ? obj.onboarded
+        : Array.isArray(obj.sessions) && obj.sessions.length > 0,
+    lastBackupAt:
+      typeof obj.lastBackupAt === "string" ? obj.lastBackupAt : undefined,
+    installReminderDismissed: obj.installReminderDismissed === true
   };
   return merged;
 }

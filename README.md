@@ -1,19 +1,24 @@
 # Lift
 
-A personal, offline-first hypertrophy workout tracker. Vite + React +
-TypeScript, packaged as a PWA and deployed to GitHub Pages. All data lives on
-the phone; there is no backend and no account.
+An offline-first hypertrophy workout tracker meant to be shared by link. Vite +
+React + TypeScript, packaged as a PWA and deployed to GitHub Pages. All data
+lives on the phone; there is no backend and no account.
 
-## Install on Android (Samsung Galaxy S24 Ultra)
+## First visit
 
-1. Open the deployed URL in **Chrome**:
-   `https://<your-user>.github.io/WorksOut/`
-2. Tap the **⋮** menu → **Add to Home screen** → **Install**.
-3. Launch it from the home screen. It runs full-screen and works with no
-   signal once it has loaded a first time.
+Open the deployed URL — `https://<your-user>.github.io/WorksOut/` — on your
+phone. A short first-run wizard walks every new user through:
 
-To update: just open the app while online. It picks up new builds
-automatically and shows an "Update available" toast — tap **Reload**.
+1. **Adding Lift to the home screen.** Android shows a one-tap button; iPhone
+   gets step-by-step instructions (it must be done from **Safari**). This isn't
+   optional polish — a browser tab's storage gets wiped after about a week
+   unused, especially on iOS, so installing first is what keeps your history.
+   "Skip for now" is there if you insist; the app re-asks later.
+2. **Setting up your profile** — name, bodyweight, experience, training split.
+
+Everyone who opens the link gets their own data on their own phone. To update
+the app: open it while online — it picks up new builds automatically and shows
+an "Update available" toast — tap **Reload**.
 
 ## Daily use
 
@@ -62,19 +67,27 @@ ordered `cycle`, and its `days`. To change it:
 
 ## Profiles
 
-**Settings → Profiles** keeps more than one person's training on the same
-device — each profile has its own history, program, swaps and cycle
-position. Switch anytime; the one you leave is saved, not lost. This is a
-local-only convenience: there is no sign-in and nothing syncs between
-devices. Every session records which profile logged it.
+The first-run wizard sets up the profile for whoever opened the link. Beyond
+that, **Settings → Profiles** keeps more than one person's training on the same
+device — each profile has its own history, program, swaps and cycle position.
+Switch anytime; the one you leave is saved, not lost. This is a local-only
+convenience: there is no sign-in and nothing syncs between devices. Every
+session records which profile logged it.
 
 ## Backups
 
+The app keeps your data on the phone and asks the browser to hold onto it, but
+the only thing that survives a new phone or a "clear browsing data" is an
+export you saved somewhere.
+
 **Settings → Export data** writes a `lift-backup-YYYY-MM-DD.json` covering
-**every profile on the device** (via the Android share sheet, or a
-download). **Import data** reads one back and, after a confirmation that
-names the profile and workout counts, replaces everything. Do this before
-clearing data or switching phones.
+**every profile on the device** (via the share sheet — save it to Files /
+iCloud Drive / Google Drive — or a plain download). After a few workouts pile
+up with no backup, a nudge above the nav bar offers to do it in one tap; the
+date of the last export is shown in **Settings → Your data**. **Import data**
+reads a backup back and, after a confirmation that names the profile and
+workout counts, replaces everything. Back up before clearing data or switching
+phones.
 
 ## Run locally
 

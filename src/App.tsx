@@ -7,7 +7,10 @@ import { History } from "./screens/History";
 import { Editor } from "./screens/Editor";
 import { Settings } from "./screens/Settings";
 import { SessionView } from "./screens/SessionView";
+import { Onboarding } from "./screens/Onboarding";
 import { RestTimer } from "./components/RestTimer";
+import { Reminders } from "./components/Reminders";
+import { useAppState } from "./store";
 
 const NAV: { hash: string; label: string; icon: string; match: string[] }[] = [
   { hash: "#/today", label: "Today", icon: "🏋", match: ["today"] },
@@ -19,6 +22,9 @@ const NAV: { hash: string; label: string; icon: string; match: string[] }[] = [
 
 export function App() {
   const route = useRoute();
+  const { onboarded } = useAppState();
+
+  if (!onboarded) return <Onboarding />;
 
   return (
     <div className="app">
@@ -33,6 +39,7 @@ export function App() {
       </main>
 
       <RestTimer />
+      <Reminders />
       <UpdateToast />
 
       <nav className="bottom-nav">

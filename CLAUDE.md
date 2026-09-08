@@ -1,9 +1,15 @@
 # WorksOut ("Lift") — dev map
 
-Offline-first hypertrophy workout tracker. PWA, **no backend, no accounts**.
-Vite + React 18 + TypeScript. Deployed to GitHub Pages at
+Offline-first hypertrophy workout tracker, **shared by link**. PWA, **no backend,
+no accounts**. Vite + React 18 + TypeScript. Deployed to GitHub Pages at
 `https://asbatty.github.io/WorksOut/` via `.github/workflows/deploy.yml` on push
 to `main`. All data is in one `localStorage` key on the device.
+
+A fresh visitor gets a first-run wizard (`screens/Onboarding.tsx`, gated on
+`state.onboarded` in `App.tsx`): add-to-home-screen (Android one-tap prompt / iOS
+Safari instructions), then profile setup. Storage resilience = `persistence.ts`
+(`navigator.storage.persist()`) + install + backup nudges (`components/Reminders.tsx`).
+No cloud sync by design — see the memory doc `worksout-lift-app` for why.
 
 This file is the fast on-ramp for future changes. README.md is user-facing;
 CHECKLIST.md is the on-device QA list.
@@ -57,9 +63,13 @@ src/storage.ts  loadState/saveState (one localStorage key "lift.appstate"),
 | `src/useRoutine.ts` | the hook screens use; also `dayName(id)` resolves across all programs |
 | `src/schedule.ts` | rolling cycle math (nextDay, workoutNumber, advance, positionAfterDay) |
 | `src/suggest.ts` | starting weight + double progression (build-plan section 6) |
-| `src/history.ts` | pull an exercise's past sets out of finished sessions |
+| `src/history.ts` | pull an exercise's past sets out of finished sessions; `workoutsSinceBackup()` |
+| `src/platform.ts` | phone-OS detection, `isStandalone()`, captured `beforeinstallprompt` |
+| `src/persistence.ts` | best-effort `navigator.storage.persist()` (called from `main.tsx`) |
 | `src/router.tsx` | hand-rolled hash router (`#/today`, `#/exercise/:id`, `#/session/:id`, ...) |
-| `src/App.tsx` | layout, bottom nav, `<RestTimer/>`, update toast |
+| `src/App.tsx` | layout, bottom nav, `<RestTimer/>`, update toast; gates `<Onboarding/>` on `!onboarded` |
+| `screens/Onboarding.tsx` | first-run wizard: install step + name/bodyweight/experience/program |
+| `components/Reminders.tsx` | app-level install / backup nudges (same slot as the toast) |
 | `screens/Today.tsx` | PlannedDay + ActiveWorkout (the big one) |
 | `screens/Exercise.tsx` | cue, muscles, YouTube search, history list, `<Chart/>`, alternatives |
 | `screens/{Calendar,History,SessionView}.tsx` | read-only views |
@@ -84,7 +94,15 @@ profile, sessions, cyclePosition, activeProgramId, swaps,
 routineOverlays: Record<programId, Routine>                   // per-program in-app edits
 routineFileVersion            // device-global
 restStartedAt?: number        // rest stopwatch start epoch; >2h old dropped on load
+onboarded: boolean            // first-run wizard done/skipped; migrate() backfills true if sessions exist
+lastBackupAt?: string         // ISO of last export; drives the backup nudge
+installReminderDismissed?: boolean
 ```
+
+`onboarded` / `lastBackupAt` / `installReminderDismissed` were added without a
+`SCHEMA_VERSION` bump: `migrate()` fills them in and an install that already has
+workouts is treated as onboarded, so existing devices never see the wizard.
+`DEFAULT_PROFILE_ID` is now `"me"` / name "You" (neutral — the wizard fills it in).
 
 - **Session lifecycle**: in-progress (`!finishedAt`) → finished (`finishedAt` set,
   `cycleAdvanced`, `prevCyclePosition`) → optionally reopened (`editing:true`,

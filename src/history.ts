@@ -3,6 +3,23 @@
 
 import type { Session, SetLog } from "./types";
 
+/**
+ * How many workouts the active profile has finished since its last data export
+ * (all of them if it has never backed up). Drives the "back up your data" nudge.
+ * Sessions still open or reopened for editing don't count.
+ */
+export function workoutsSinceBackup(
+  sessions: Session[],
+  lastBackupAt: string | undefined
+): number {
+  return sessions.filter(
+    (s) =>
+      s.finishedAt &&
+      !s.editing &&
+      (!lastBackupAt || s.finishedAt > lastBackupAt)
+  ).length;
+}
+
 export interface HistoryEntry {
   sessionId: string;
   date: string; // ISO, the session's finish time (or start if unfinished)

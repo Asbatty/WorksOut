@@ -427,6 +427,26 @@ export function noteRoutineFileVersion(version: number) {
   set((s) => (s.routineFileVersion === version ? s : { ...s, routineFileVersion: version }));
 }
 
+// --- first-run + backups (device-global) ------------------------------
+
+/** Mark the first-run wizard done (or skipped). */
+export function setOnboarded(value = true) {
+  set((s) => (s.onboarded === value ? s : { ...s, onboarded: value }));
+}
+
+/** Record that a backup was just exported (best effort — the share sheet can't
+ *  tell us the user actually saved the file). Drives the backup nudge. */
+export function noteBackup() {
+  set((s) => ({ ...s, lastBackupAt: new Date().toISOString() }));
+}
+
+/** Remember that the user dismissed the "add to home screen" reminder. */
+export function dismissInstallReminder() {
+  set((s) =>
+    s.installReminderDismissed ? s : { ...s, installReminderDismissed: true }
+  );
+}
+
 // --- rest stopwatch -----------------------------------------------------
 
 /** Start (or restart) the rest stopwatch from zero. */
