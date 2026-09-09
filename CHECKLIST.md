@@ -142,6 +142,9 @@ fresh private window).
 
 - [ ] Rename a day, reorder a slot, change a rep range, replace an exercise
       via search, add a slot, delete a slot.
+- [ ] Each slot shows Sets / Min reps / Max reps as three full-width rows with
+      the number clearly readable (two-digit max reps like 12/15 not clipped).
+      The exercise button shows its name with a "Tap to change ▸" hint.
 - [ ] "Add custom exercise", then use it in a slot.
 - [ ] Today reflects all edits. The "editing a local copy" banner shows.
 

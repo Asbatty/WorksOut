@@ -160,6 +160,10 @@ export function Editor() {
   return (
     <>
       <h1>Routine editor</h1>
+      <p className="dim small editor-intro">
+        Reorder days and exercises, swap any exercise, and set the sets and rep
+        range for each slot. Changes apply to this program only.
+      </p>
       <div className="edit-banner">
         Editing a local copy of <strong>{routine.name}</strong>. Reset to file in
         Settings to discard. Switch programs in Settings.
@@ -205,8 +209,10 @@ export function Editor() {
                   <button
                     className="slot-ex"
                     onClick={() => setPickerFor({ dayId: day.id, slotIndex: si })}
+                    aria-label={`Change exercise, currently ${ex?.name ?? slot.exerciseId}`}
                   >
-                    {ex?.name ?? slot.exerciseId} <span className="dim">change</span>
+                    <span className="slot-ex-name">{ex?.name ?? slot.exerciseId}</span>
+                    <span className="slot-ex-change">Tap to change ▸</span>
                   </button>
                   <div className="row-btns">
                     <button className="mini" aria-label="Move up" onClick={() => moveSlot(day.id, si, -1)}>

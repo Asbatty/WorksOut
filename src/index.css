@@ -524,20 +524,35 @@ button.ghost:active,
   border-color: transparent;
 }
 
-/* Editor packs three small steppers per slot; keep them on one row. */
+/* Editor: sets / min reps / max reps each on their own full-width row with an
+   inline label, so two-digit values are never cramped or clipped. */
 .slot-steppers {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 6px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.slot-steppers .stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.slot-steppers .stepper-label {
+  flex: 0 0 82px;
+  margin-bottom: 0;
+  font-size: 0.82rem;
+}
+.slot-steppers .stepper-controls {
+  flex: 1;
 }
 .slot-steppers .stepper-controls button {
-  width: 40px;
-  min-width: 40px;
-  font-size: 1.2rem;
+  width: 52px;
+  min-width: 52px;
+  font-size: 1.3rem;
 }
 .slot-steppers .stepper-value input {
-  font-size: 1rem;
-  padding: 10px 2px;
+  font-size: 1.05rem;
+  padding: 12px 4px;
 }
 
 /* ---- Notes ---- */
@@ -989,26 +1004,40 @@ button.ghost.small,
 }
 .slot-row {
   border-top: 1px solid var(--border);
-  padding: 10px 0;
+  padding: 12px 0 14px;
 }
 .slot-top {
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
 }
 .slot-ex {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   text-align: left;
   background: var(--surface-2);
-  font-weight: 600;
+  padding: 8px 12px;
 }
-.slot-steppers {
-  margin-top: 8px;
+.slot-ex-name {
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+.slot-ex-change {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
 }
 .add-slot {
   width: 100%;
-  margin-top: 8px;
+  margin-top: 10px;
+}
+.editor-intro {
+  margin: 2px 0 10px;
 }
 
 /* ---- Modal scrim + generic form ---- */
