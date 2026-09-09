@@ -28,7 +28,7 @@ export function App() {
 
   return (
     <div className="app">
-      <main className="screen">
+      <main className={route.name === "today" ? "screen" : "screen roomy"}>
         {route.name === "today" && <Today />}
         {route.name === "exercise" && <Exercise id={route.id} />}
         {route.name === "calendar" && <Calendar />}

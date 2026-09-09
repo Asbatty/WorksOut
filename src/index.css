@@ -53,6 +53,12 @@ body {
   width: 100%;
   margin: 0 auto;
 }
+/* Screens that can show the bottom-right rest timer get extra scroll room so
+   the last content can be pushed clear above the pill. Today doesn't need it —
+   its sticky action stack already owns that zone. */
+.screen.roomy {
+  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 88px);
+}
 
 h1 {
   font-size: 1.4rem;
