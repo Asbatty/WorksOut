@@ -6,16 +6,17 @@ Pull in the rest only when the task needs it — routing table below.
 
 ## Current state — verified 2026-09-08
 
-Baseline: `9704891` (PR #1 merge) plus one local commit on top —
-"Fold done sets, tuck the rest timer away, add SESSION.md".
+Baseline: `9704891` (PR #1 merge) plus the 2026-09-08 UX commits on `main`,
+all pushed and deployed.
 
 - Branch `main`, clean. `multi-user-onboarding` is **merged** (PR #1) and
   **deployed**: the first-run wizard, per-visitor profiles,
   `navigator.storage.persist()`, install prompt and backup nudges are all live at
   https://asbatty.github.io/WorksOut/ .
-- Local commit not yet pushed: done sets fold to a summary line and an exercise
-  card auto-collapses after its last set; the rest timer shows only while running
-  and sits bottom-right on every screen except an active Today workout.
+- 2026-09-08 UX shipped: done sets fold to a summary line and an exercise card
+  auto-collapses after its last set; the rest timer shows only while running and
+  sits bottom-right except on an active Today workout; "Skip this workout" and
+  "Do a different day" share a row (other secondary actions stay stacked).
 - `npm test` → 49 pass. `npm run build` → clean (63 exercises, 3 programs, 10 days).
 - **Open:** real-device QA of the onboarding + backup-nudge flow on a real
   Android phone *and* an iPhone (`CHECKLIST.md`, first two sections) — post-ship

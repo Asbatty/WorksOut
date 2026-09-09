@@ -175,10 +175,12 @@ function PlannedDay({ routine }: { routine: Routine }) {
           Start {day.name}
         </button>
         <div className="secondary-actions">
-          <button className="ghost" onClick={() => skipWorkout(routine)}>
-            Skip this workout
-          </button>
-          <DifferentDay routine={routine} />
+          <div className="action-row">
+            <button className="ghost" onClick={() => skipWorkout(routine)}>
+              Skip this workout
+            </button>
+            <DifferentDay routine={routine} />
+          </div>
           <ReopenLast routine={routine} />
         </div>
       </div>
@@ -209,49 +211,53 @@ function DifferentDay({ routine }: { routine: Routine }) {
   const state = useAppState();
   const todayId = nextDay(state, routine)?.id;
 
-  if (!open)
-    return (
-      <button className="ghost" onClick={() => setOpen(true)}>
+  return (
+    <>
+      <button
+        className="ghost"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
         Do a different day
       </button>
-    );
-
-  return (
-    <div className="sheet inline">
-      <p className="sheet-title">Which day?</p>
-      {routine.cycle.map((dayId, idx) => {
-        const d = routine.days.find((x) => x.id === dayId);
-        if (!d) return null;
-        return (
-          <button
-            key={`${dayId}-${idx}`}
-            className="sheet-item"
-            onClick={() => {
-              // Just start a session for this day. finishSession() notices the
-              // day isn't the current cycle position and resumes the cycle at
-              // the slot right after it.
-              startSession(routine, dayId, (slotIndex, exId) => {
-                const ex = findExercise(routine, exId);
-                if (!ex) return 0;
-                return suggestWeight(
-                  ex,
-                  d.slots[slotIndex],
-                  state.profile,
-                  exerciseHistory(state.sessions, exId)
-                ).weight;
-              });
-              setOpen(false);
-            }}
-          >
-            {d.name}
-            {dayId === todayId ? " · today" : ""}
+      {open && (
+        <div className="sheet inline">
+          <p className="sheet-title">Which day?</p>
+          {routine.cycle.map((dayId, idx) => {
+            const d = routine.days.find((x) => x.id === dayId);
+            if (!d) return null;
+            return (
+              <button
+                key={`${dayId}-${idx}`}
+                className="sheet-item"
+                onClick={() => {
+                  // Just start a session for this day. finishSession() notices
+                  // the day isn't the current cycle position and resumes the
+                  // cycle at the slot right after it.
+                  startSession(routine, dayId, (slotIndex, exId) => {
+                    const ex = findExercise(routine, exId);
+                    if (!ex) return 0;
+                    return suggestWeight(
+                      ex,
+                      d.slots[slotIndex],
+                      state.profile,
+                      exerciseHistory(state.sessions, exId)
+                    ).weight;
+                  });
+                  setOpen(false);
+                }}
+              >
+                {d.name}
+                {dayId === todayId ? " · today" : ""}
+              </button>
+            );
+          })}
+          <button className="ghost" onClick={() => setOpen(false)}>
+            Cancel
           </button>
-        );
-      })}
-      <button className="ghost" onClick={() => setOpen(false)}>
-        Cancel
-      </button>
-    </div>
+        </div>
+      )}
+    </>
   );
 }
 

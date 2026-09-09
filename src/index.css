@@ -574,6 +574,21 @@ button.ghost:active,
   flex-direction: column;
   gap: 6px;
 }
+/* "Skip this workout" + "Do a different day" share a row; the day-picker
+   sheet, when open, wraps to its own full-width line below them. */
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.action-row > button {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.action-row > .sheet.inline {
+  flex-basis: 100%;
+  margin: 4px 0 0;
+}
 button.ghost.small,
 .ghost.small {
   min-height: 36px;
