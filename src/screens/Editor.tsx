@@ -78,6 +78,23 @@ export function Editor() {
     { dayId: string; slotIndex: number | "add" } | null
   >(null);
   const [showCustom, setShowCustom] = useState(false);
+  // Slots start collapsed to a name + "N × min–max" line; tap to open the
+  // change / reorder / set-rep controls. Keyed by "dayId:index".
+  const [openSlots, setOpenSlots] = useState<Set<string>>(() => new Set());
+  const slotKey = (dayId: string, i: number) => `${dayId}:${i}`;
+  const toggleSlot = (dayId: string, i: number) =>
+    setOpenSlots((prev) => {
+      const key = slotKey(dayId, i);
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  /** Drop every open-state key for a day (its slot indices are about to shift). */
+  const dropDayKeys = (prev: Set<string>, dayId: string) => {
+    const next = new Set<string>();
+    for (const k of prev) if (!k.startsWith(`${dayId}:`)) next.add(k);
+    return next;
+  };
 
   if (!routine) return <p>Loading routine…</p>;
 
@@ -122,6 +139,13 @@ export function Editor() {
     if (j < 0 || j >= d.slots.length) return;
     [d.slots[i], d.slots[j]] = [d.slots[j], d.slots[i]];
     commit(r);
+    // Keep the moved slot's open-state following it; clear the day's stale keys.
+    setOpenSlots((prev) => {
+      const wasOpen = prev.has(slotKey(dayId, i));
+      const next = dropDayKeys(prev, dayId);
+      if (wasOpen) next.add(slotKey(dayId, j));
+      return next;
+    });
   };
   const setSlot = (
     dayId: string,
@@ -142,13 +166,17 @@ export function Editor() {
     if (!d) return;
     d.slots.splice(i, 1);
     commit(r);
+    setOpenSlots((prev) => dropDayKeys(prev, dayId));
   };
   const addSlot = (dayId: string, exerciseId: string) => {
     const r = clone(routine);
     const d = r.days.find((x) => x.id === dayId);
     if (!d) return;
+    const newIndex = d.slots.length;
     d.slots.push({ exerciseId, sets: 3, repMin: 8, repMax: 12 });
     commit(r);
+    // Open the fresh slot so its sets / reps are right there to set.
+    setOpenSlots((prev) => new Set(prev).add(slotKey(dayId, newIndex)));
   };
 
   const addCustomExercise = (ex: Exercise) => {
@@ -161,8 +189,8 @@ export function Editor() {
     <>
       <h1>Routine editor</h1>
       <p className="dim small editor-intro">
-        Reorder days and exercises, swap any exercise, and set the sets and rep
-        range for each slot. Changes apply to this program only.
+        Tap an exercise to change it, reorder it, or set its sets and rep range.
+        Changes apply to this program only.
       </p>
       <div className="edit-banner">
         Editing a local copy of <strong>{routine.name}</strong>. Reset to file in
@@ -203,56 +231,73 @@ export function Editor() {
 
           {day.slots.map((slot, si) => {
             const ex = routine.exercises.find((x) => x.id === slot.exerciseId);
+            const open = openSlots.has(slotKey(day.id, si));
             return (
               <div key={si} className="slot-row">
-                <div className="slot-top">
-                  <button
-                    className="slot-ex"
-                    onClick={() => setPickerFor({ dayId: day.id, slotIndex: si })}
-                    aria-label={`Change exercise, currently ${ex?.name ?? slot.exerciseId}`}
-                  >
-                    <span className="slot-ex-name">{ex?.name ?? slot.exerciseId}</span>
-                    <span className="slot-ex-change">Tap to change ▸</span>
-                  </button>
-                  <div className="row-btns">
-                    <button className="mini" aria-label="Move up" onClick={() => moveSlot(day.id, si, -1)}>
-                      ↑
-                    </button>
-                    <button className="mini" aria-label="Move down" onClick={() => moveSlot(day.id, si, 1)}>
-                      ↓
-                    </button>
-                    <button
-                      className="mini danger"
-                      aria-label="Remove slot"
-                      onClick={() => removeSlot(day.id, si)}
-                    >
-                      ✕
-                    </button>
+                <button
+                  type="button"
+                  className="disclosure slot-disclosure"
+                  aria-expanded={open}
+                  onClick={() => toggleSlot(day.id, si)}
+                >
+                  <span className={open ? "caret open" : "caret"}>▸</span>
+                  <span className="ex-name">{ex?.name ?? slot.exerciseId}</span>
+                  <span className="slot-summary">
+                    {slot.sets} × {slot.repMin}–{slot.repMax}
+                  </span>
+                </button>
+
+                {open && (
+                  <div className="slot-body">
+                    <div className="slot-top">
+                      <button
+                        className="slot-change-btn"
+                        onClick={() => setPickerFor({ dayId: day.id, slotIndex: si })}
+                        aria-label={`Change exercise, currently ${ex?.name ?? slot.exerciseId}`}
+                      >
+                        Change exercise ▸
+                      </button>
+                      <div className="row-btns">
+                        <button className="mini" aria-label="Move up" onClick={() => moveSlot(day.id, si, -1)}>
+                          ↑
+                        </button>
+                        <button className="mini" aria-label="Move down" onClick={() => moveSlot(day.id, si, 1)}>
+                          ↓
+                        </button>
+                        <button
+                          className="mini danger"
+                          aria-label="Remove slot"
+                          onClick={() => removeSlot(day.id, si)}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                    <div className="slot-steppers">
+                      <Stepper
+                        label="Sets"
+                        value={slot.sets}
+                        step={1}
+                        min={1}
+                        onChange={(v) => setSlot(day.id, si, { sets: v })}
+                      />
+                      <Stepper
+                        label="Min reps"
+                        value={slot.repMin}
+                        step={1}
+                        min={1}
+                        onChange={(v) => setSlot(day.id, si, { repMin: v })}
+                      />
+                      <Stepper
+                        label="Max reps"
+                        value={slot.repMax}
+                        step={1}
+                        min={1}
+                        onChange={(v) => setSlot(day.id, si, { repMax: v })}
+                      />
+                    </div>
                   </div>
-                </div>
-                <div className="slot-steppers">
-                  <Stepper
-                    label="Sets"
-                    value={slot.sets}
-                    step={1}
-                    min={1}
-                    onChange={(v) => setSlot(day.id, si, { sets: v })}
-                  />
-                  <Stepper
-                    label="Min reps"
-                    value={slot.repMin}
-                    step={1}
-                    min={1}
-                    onChange={(v) => setSlot(day.id, si, { repMin: v })}
-                  />
-                  <Stepper
-                    label="Max reps"
-                    value={slot.repMax}
-                    step={1}
-                    min={1}
-                    onChange={(v) => setSlot(day.id, si, { repMax: v })}
-                  />
-                </div>
+                )}
               </div>
             );
           })}
