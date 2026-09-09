@@ -7,21 +7,31 @@ pulled on the other computer. `CLAUDE.md` is the architecture map; `README.md`
 is user-facing; `CHECKLIST.md` is the on-device QA list; this file is "where
 things stand and what's next".
 
-## Status — 2026-09-07
+## Status — 2026-09-08
 
-- Active branch **`multi-user-onboarding`**, PR **#1** → `main`
-  (https://github.com/Asbatty/WorksOut/pull/1). **Not merged.**
-- `npm run build` and 49 unit tests pass. Not yet exercised on a real phone.
-- `main` tip `17d14a7`. Everything from the 2026-09-03/04 session is shipped
-  and was QA'd in Chrome at phone width (set rows on their own lines, no
-  auto-expand, ghost-button glass, paper-plane detail link, skip-exercise,
-  rest-stopwatch z-order, 3-program picker + local Profiles, `CLAUDE.md`).
+- **PR #1 (`multi-user-onboarding`) is MERGED and DEPLOYED.** Merged 2026-09-07,
+  the merge commit deployed to GitHub Pages on 2026-09-08 (Actions run green).
+  The first-run wizard, per-visitor profiles, `storage.persist()`, install
+  prompt and backup nudges are all live at https://asbatty.github.io/WorksOut/ .
+- `npm run build` and 49 unit tests pass. Onboarding flow still only exercised
+  in Chrome at phone width — **not yet on a real phone.**
+- `main` tip after the merge: `9704891`. Everything from the 2026-09-03/04
+  session shipped earlier and was QA'd in Chrome at phone width (set rows on
+  their own lines, no auto-expand, ghost-button glass, paper-plane detail link,
+  skip-exercise, rest-stopwatch z-order, 3-program picker + local Profiles).
+- 2026-09-08 follow-up (this session, uncommitted at time of writing → then
+  committed): set/exercise compression on "done", rest-timer only-while-running
+  + corner placement off Today, plus `SESSION.md` as the fast re-open doc.
 
 ## Open items
 
-- **PR #1 — real-device QA before merge.** Run the `CHECKLIST.md` *First-run
-  wizard* and *Backup nudge & install reminder* sections on an Android phone
-  and an iPhone. Everything else on the PR is green.
+- **Onboarding — real-device QA (now post-ship).** Run the `CHECKLIST.md`
+  *First-run wizard* and *Backup nudge & install reminder* sections on an
+  Android phone and an iPhone. It merged without this pass, so it's verification
+  of live behaviour, not a merge gate. The iOS Safari "Add to Home Screen" path
+  is the untested one that matters most.
+- **QA the 2026-09-08 UI changes** (`CHECKLIST.md` "Log a full workout" and
+  "rest timer" sections) under `npm run build && npm run preview`.
 - Decided against (still): rewriting the public commit email; adding a
   medical/training-advice disclaimer.
 
@@ -160,6 +170,11 @@ npm run preview -- --port 4318
 
 ## Session log
 
+- **2026-09-08** — PR #1 merged + deployed. Then: `SESSION.md` fast-reopen doc;
+  set folds to a summary line when ticked done and the exercise card
+  auto-collapses after its last set; rest timer renders only while running and
+  drops to the bottom-right corner on any screen other than an active Today
+  workout. `SetRow.tsx`, `Today.tsx`, `RestTimer.tsx`, `index.css`, docs.
 - **2026-09-06/07** — multi-user first-run wizard + per-visitor profiles +
   install prompt + backup nudges, on branch `multi-user-onboarding` / PR #1.
   `navigator.storage.persist()` added; `localStorage`→IndexedDB deferred. Not

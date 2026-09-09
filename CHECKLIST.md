@@ -44,6 +44,12 @@ fresh private window).
       press-and-hold repeats. Tapping a number field opens the numeric keypad.
 - [ ] Tick sets done. Reps default from last session's ghost value when you
       tick without typing.
+- [ ] Ticking a set done folds it to a one-line summary ("135 lb × 8"); the
+      next unticked set is now in reach. Tapping that summary line reopens the
+      steppers; ticking it done again re-folds it.
+- [ ] Ticking the LAST set of an exercise folds the whole card up a beat later,
+      surfacing the next exercise. Un-ticking within that beat cancels the fold.
+      A folded, finished exercise can still be reopened from its title row.
 - [ ] Add a note to one exercise.
 - [ ] ⋯ on an exercise → "Skip this exercise today". Card dims, shows
       "Skipped", collapses. ⋯ → "Put this exercise back" restores it.
@@ -83,9 +89,13 @@ fresh private window).
 - [ ] Switching back to Upper / Lower keeps all past history and suggestions.
 - [ ] Editor edits only the current program; its banner names it.
 - [ ] Can't switch programs while a workout is in progress.
-- [ ] Start a workout: rest pill appears bottom-right. Tick a set done — it
-      starts counting. ⟳ restarts from 0, ✕ stops. It keeps running if you
-      switch tabs or background the app.
+- [ ] Start a workout: no rest pill yet. Tick a set done — the pill appears and
+      starts counting, above the "Finish workout" button. ⟳ restarts from 0, ✕
+      stops it and the pill disappears. It keeps running if you switch tabs or
+      background the app.
+- [ ] With the timer running, open an exercise detail / History / a session:
+      the pill sits in the bottom-right corner just above the nav, not floating
+      mid-screen over the text. Back on Today it returns above the finish stack.
 
 ## Undo / edit a finished workout
 

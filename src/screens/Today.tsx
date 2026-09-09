@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { navigate } from "../router";
 import { useRoutine } from "../useRoutine";
 import {
@@ -295,6 +295,32 @@ function ActiveWorkout({
       next.has(i) ? next.delete(i) : next.add(i);
       return next;
     });
+
+  // When the last set of an exercise is ticked done, fold that card up so the
+  // next exercise is in reach. Fires once on the not-done -> done transition
+  // (so a completed exercise can still be reopened by hand), on a short delay
+  // so the final tick is visible first. Un-ticking within the delay cancels it.
+  const completedBefore = useRef<Set<number>>(new Set());
+  useEffect(() => {
+    const complete = new Set<number>();
+    session.exercises.forEach((log, i) => {
+      if (!log.skipped && log.sets.length > 0 && log.sets.every((s) => s.done)) {
+        complete.add(i);
+      }
+    });
+    const justFinished = [...complete].filter((i) => !completedBefore.current.has(i));
+    completedBefore.current = complete;
+    if (justFinished.length === 0) return;
+    const t = setTimeout(() => {
+      setExpanded((prev) => {
+        if (!justFinished.some((i) => prev.has(i))) return prev;
+        const next = new Set(prev);
+        justFinished.forEach((i) => next.delete(i));
+        return next;
+      });
+    }, 400);
+    return () => clearTimeout(t);
+  }, [session.exercises]);
 
   // Tell the floating rest timer to lift clear of the finish-confirm bar.
   useEffect(() => {

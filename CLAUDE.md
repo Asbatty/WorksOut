@@ -1,5 +1,10 @@
 # WorksOut ("Lift") — dev map
 
+> **Opening this project? Read `SESSION.md` first** — current state, health-check
+> command, and a routing table so you fetch only the docs/source a task needs.
+> This file is the architecture reference; reach for it when actually changing
+> code, not to reconstruct where things stand.
+
 Offline-first hypertrophy workout tracker, **shared by link**. PWA, **no backend,
 no accounts**. Vite + React 18 + TypeScript. Deployed to GitHub Pages at
 `https://asbatty.github.io/WorksOut/` via `.github/workflows/deploy.yml` on push
@@ -70,15 +75,15 @@ src/storage.ts  loadState/saveState (one localStorage key "lift.appstate"),
 | `src/App.tsx` | layout, bottom nav, `<RestTimer/>`, update toast; gates `<Onboarding/>` on `!onboarded` |
 | `screens/Onboarding.tsx` | first-run wizard: install step + name/bodyweight/experience/program |
 | `components/Reminders.tsx` | app-level install / backup nudges (same slot as the toast) |
-| `screens/Today.tsx` | PlannedDay + ActiveWorkout (the big one) |
+| `screens/Today.tsx` | PlannedDay + ActiveWorkout (the big one). ActiveWorkout auto-collapses an exercise card ~400ms after its last set is ticked (`completedBefore` ref guards the transition) |
 | `screens/Exercise.tsx` | cue, muscles, YouTube search, history list, `<Chart/>`, alternatives |
 | `screens/{Calendar,History,SessionView}.tsx` | read-only views |
 | `screens/Editor.tsx` | edits the active program -> `routineOverlays[programId]` |
 | `screens/Settings.tsx` | profiles, program picker, profile fields, export/import, reset, wipe |
 | `components/Stepper.tsx` | big +/- input, press-and-hold repeat, `mode` = decimal/numeric |
-| `components/SetRow.tsx` | one set: header (num + Done toggle), weight row, reps row |
+| `components/SetRow.tsx` | one set: header (num + Done toggle), weight row, reps row. A done set folds to a summary line (local `editing` state reopens it) |
 | `components/Chart.tsx` | dependency-free inline-SVG line chart |
-| `components/RestTimer.tsx` | floating stopwatch pill (App-level) |
+| `components/RestTimer.tsx` | floating stopwatch pill (App-level). Renders only while running; `at-corner` off Today, `raised` for the finish-confirm bar |
 | `components/ExercisePicker.tsx` | searchable exercise list (Editor) |
 | `scripts/validate-routine.mjs` | routine.json integrity (runs in `build`) |
 | `scripts/gen-icons.mjs` | PNG icon generator (no image lib) |

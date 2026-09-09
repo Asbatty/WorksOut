@@ -172,6 +172,11 @@ button.ghost:active,
   bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 180px);
   transition: bottom 0.15s ease;
 }
+/* Off the Today screen there's no action stack — sit in the bottom-right
+   corner just above the nav instead of floating up the screen over content. */
+.rest-timer.at-corner {
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 12px);
+}
 .rest-time {
   font-variant-numeric: tabular-nums;
   font-weight: 700;
@@ -186,14 +191,6 @@ button.ghost:active,
   border-radius: 50%;
   background: var(--surface-2);
   font-size: 1rem;
-}
-.rest-start {
-  min-height: 40px;
-  padding: 0 6px;
-  background: transparent;
-  border: none;
-  font-weight: 600;
-  color: var(--text);
 }
 
 /* ---- Toast ---- */
@@ -480,6 +477,24 @@ button.ghost:active,
   color: var(--text-dim);
   font-size: 0.9rem;
   font-weight: 600;
+}
+/* When a done set is folded, its number line doubles as the reopen toggle. */
+.set-toggle {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  min-height: 44px;
+  text-align: left;
+}
+.set-summary {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.set-row.collapsed .set-row-head {
+  margin-bottom: 0;
 }
 .set-row .stepper + .stepper {
   margin-top: 8px;
