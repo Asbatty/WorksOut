@@ -1,7 +1,7 @@
 // Big +/- numeric input. The whole thing is operable with the two buttons
 // alone; typing is optional and opens the numeric keypad. Min target 48px.
 
-import { useRef } from "react";
+import { useRef, type PointerEvent as RPointerEvent, type MouseEvent as RMouseEvent } from "react";
 
 interface StepperProps {
   label: string;
@@ -31,6 +31,13 @@ export function Stepper({
 }: StepperProps) {
   const holdTimer = useRef<number | undefined>(undefined);
   const holdInterval = useRef<number | undefined>(undefined);
+  // Where the finger went down, and whether this press has turned into a
+  // scroll (moved / cancelled) or a hold. A press only changes the value on
+  // release, so a scroll that starts on a button does nothing.
+  const press = useRef<{ x: number; y: number; moved: boolean; held: boolean } | null>(null);
+  // Latest value, so the hold-repeat interval doesn't keep adding to a stale one.
+  const valueRef = useRef(value);
+  valueRef.current = value;
 
   const clamp = (n: number) => {
     let v = n;
@@ -40,19 +47,71 @@ export function Stepper({
     return Math.round(v * 100) / 100;
   };
 
-  const bump = (dir: 1 | -1) => onChange(clamp(value + dir * step));
-
-  // Press-and-hold to repeat, so dialling from 45 to 185 isn't 28 taps.
-  const startHold = (dir: 1 | -1) => {
-    bump(dir);
-    holdTimer.current = window.setTimeout(() => {
-      holdInterval.current = window.setInterval(() => bump(dir), 90);
-    }, 450);
+  const bump = (dir: 1 | -1) => {
+    const next = clamp(valueRef.current + dir * step);
+    valueRef.current = next;
+    onChange(next);
   };
-  const endHold = () => {
+
+  const stopTimers = () => {
     window.clearTimeout(holdTimer.current);
     window.clearInterval(holdInterval.current);
   };
+
+  // Finger down: arm a hold, but don't change anything yet.
+  const onDown = (dir: 1 | -1) => (e: RPointerEvent) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    press.current = { x: e.clientX, y: e.clientY, moved: false, held: false };
+    stopTimers();
+    // Press-and-hold to repeat, so dialling from 45 to 185 isn't 28 taps.
+    holdTimer.current = window.setTimeout(() => {
+      const p = press.current;
+      if (!p || p.moved) return;
+      p.held = true;
+      bump(dir);
+      holdInterval.current = window.setInterval(() => bump(dir), 90);
+    }, 450);
+  };
+
+  // More than a small wobble means the user is scrolling: drop the press.
+  const onMove = (e: RPointerEvent) => {
+    const p = press.current;
+    if (!p || p.moved) return;
+    if (Math.hypot(e.clientX - p.x, e.clientY - p.y) > 10) {
+      p.moved = true;
+      stopTimers();
+    }
+  };
+
+  // Finger up: a clean tap bumps once; a hold already did its work.
+  const onUp = (dir: 1 | -1) => () => {
+    const p = press.current;
+    stopTimers();
+    press.current = null;
+    if (p && !p.moved && !p.held) bump(dir);
+  };
+
+  // The browser took the gesture over (scroll) or the finger slid off.
+  const cancel = () => {
+    if (press.current) press.current.moved = true;
+    stopTimers();
+    press.current = null;
+  };
+
+  // Keyboard activation (Enter/Space) arrives as a click with detail 0.
+  const onKeyClick = (dir: 1 | -1) => (e: RMouseEvent) => {
+    if (e.detail === 0) bump(dir);
+  };
+
+  const buttonProps = (dir: 1 | -1) => ({
+    onPointerDown: onDown(dir),
+    onPointerMove: onMove,
+    onPointerUp: onUp(dir),
+    onPointerLeave: cancel,
+    onPointerCancel: cancel,
+    onClick: onKeyClick(dir),
+    onContextMenu: (e: RMouseEvent) => e.preventDefault()
+  });
 
   return (
     <div className="stepper">
@@ -61,10 +120,7 @@ export function Stepper({
         <button
           type="button"
           aria-label={`Decrease ${label}`}
-          onPointerDown={() => startHold(-1)}
-          onPointerUp={endHold}
-          onPointerLeave={endHold}
-          onPointerCancel={endHold}
+          {...buttonProps(-1)}
         >
           &minus;
         </button>
@@ -87,10 +143,7 @@ export function Stepper({
         <button
           type="button"
           aria-label={`Increase ${label}`}
-          onPointerDown={() => startHold(1)}
-          onPointerUp={endHold}
-          onPointerLeave={endHold}
-          onPointerCancel={endHold}
+          {...buttonProps(1)}
         >
           +
         </button>
