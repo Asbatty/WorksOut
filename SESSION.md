@@ -17,7 +17,7 @@ all pushed and deployed.
   auto-collapses after its last set; the rest timer shows only while running and
   sits bottom-right except on an active Today workout; "Skip this workout" and
   "Do a different day" share a row (other secondary actions stay stacked).
-- `npm test` → 49 pass. `npm run build` → clean (63 exercises, 3 programs, 10 days).
+- `npm test` → 49 pass. `npm run build` → clean (63 exercises, 4 programs, 18 days).
 - **Open:** real-device QA of the onboarding + backup-nudge flow on a real
   Android phone *and* an iPhone (`CHECKLIST.md`, first two sections) — post-ship
   verification, not a merge gate. Also QA the fold / rest-timer changes
