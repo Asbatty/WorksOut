@@ -270,6 +270,102 @@
           ]
         }
       ]
+    },
+    {
+      "id": "sophia",
+      "name": "Sophia",
+      "description": "3 days a week (Mon/Wed/Fri), about 30–35 min: warm-up, supersets, cardio finisher, cooldown. Optional day 4: 25–30 min incline walk + cooldown. Avoid overhead pressing, shrugs, upright rows, crunches, skull crushers, running, and long stretches of looking down under load. Stop anything that makes tingling or numbness worse and drop it until cleared by PT.",
+      "daysPerWeek": "3",
+      "cycle": ["sophia-a", "sophia-b", "sophia-c"],
+      "days": [
+        {
+          "id": "sophia-a",
+          "name": "Arms & Upper Back",
+          "restSec": 60,
+          "warmup": [
+            "Elliptical – 3 min easy, gaze forward",
+            "Chin tucks – 8 reps, 2s hold",
+            "Gentle head turns – 5/side, pain-free range only; skip if arm symptoms",
+            "Open books – 6/side, head on towel",
+            "Cat-cow – 8 reps, neck in line with spine",
+            "Band pull-aparts – 12 reps, shoulders down",
+            "Supine figure-4 stretch – 30s/side"
+          ],
+          "slots": [
+            { "exerciseId": "cable-seated-row", "sets": 3, "repMin": 12, "repMax": 12, "group": "A", "note": "Use the chest pad. Shoulder blades back, not up.", "alternatives": ["chest-supported-row"] },
+            { "exerciseId": "db-curl", "sets": 3, "repMin": 12, "repMax": 12, "group": "A", "note": "Seated, back supported.", "alternatives": ["cable-curl", "machine-curl", "db-hammer-curl"] },
+            { "exerciseId": "machine-chest-press", "sets": 3, "repMin": 10, "repMax": 12, "group": "B", "note": "Neutral grip.", "alternatives": ["pec-deck", "cable-fly"] },
+            { "exerciseId": "cable-triceps-pushdown", "sets": 3, "repMin": 12, "repMax": 15, "group": "B", "note": "Rope attachment.", "alternatives": ["single-arm-cable-pushdown"] },
+            { "exerciseId": "db-hammer-curl", "sets": 3, "repMin": 12, "repMax": 12, "group": "C", "note": "Seated.", "alternatives": ["db-curl", "cable-curl"] },
+            { "exerciseId": "face-pull", "sets": 3, "repMin": 12, "repMax": 15, "group": "C", "note": "Light. Pull to forehead, shoulders relaxed.", "alternatives": ["rear-delt-fly"] }
+          ],
+          "finisher": ["Elliptical – 6 min steady, moderate"],
+          "cooldown": [
+            "Chin tucks – 5 reps",
+            "Doorway chest stretch – 30s",
+            "Figure-4 or 90/90 hip stretch – 30s/side",
+            "Child's pose, forehead on stacked hands – 30s"
+          ]
+        },
+        {
+          "id": "sophia-b",
+          "name": "Core & Hips",
+          "restSec": 60,
+          "warmup": [
+            "Elliptical – 3 min easy, gaze forward",
+            "Chin tucks – 8 reps, 2s hold",
+            "Gentle head turns – 5/side, pain-free range only; skip if arm symptoms",
+            "Open books – 6/side, head on towel",
+            "Cat-cow – 8 reps, neck in line with spine",
+            "Band pull-aparts – 12 reps, shoulders down",
+            "Supine figure-4 stretch – 30s/side"
+          ],
+          "slots": [
+            { "exerciseId": "bodyweight-glute-bridge", "sets": 3, "repMin": 12, "repMax": 12, "group": "A", "note": "Chin slightly tucked. Progress to hip thrust.", "alternatives": ["hip-thrust"] },
+            { "exerciseId": "dead-bug", "sets": 3, "repMin": 8, "repMax": 8, "group": "A" },
+            { "exerciseId": "goblet-squat", "sets": 3, "repMin": 10, "repMax": 10, "group": "B", "note": "Squat to a bench. Light dumbbell at your chest.", "alternatives": [] },
+            { "exerciseId": "pallof-press", "sets": 3, "repMin": 10, "repMax": 10, "group": "B" },
+            { "exerciseId": "cable-hip-abduction", "sets": 3, "repMin": 12, "repMax": 12, "group": "C", "alternatives": ["side-lying-leg-raise", "banded-clamshell"] },
+            { "exerciseId": "side-plank-knees", "sets": 3, "repMin": 20, "repMax": 30, "group": "C", "note": "Head in line with your body." }
+          ],
+          "finisher": ["Incline walk – 6–8 min"],
+          "cooldown": [
+            "Chin tucks – 5 reps",
+            "Doorway chest stretch – 30s",
+            "Figure-4 or 90/90 hip stretch – 30s/side",
+            "Child's pose, forehead on stacked hands – 30s"
+          ]
+        },
+        {
+          "id": "sophia-c",
+          "name": "Full Body",
+          "restSec": 60,
+          "warmup": [
+            "Elliptical – 3 min easy, gaze forward",
+            "Chin tucks – 8 reps, 2s hold",
+            "Gentle head turns – 5/side, pain-free range only; skip if arm symptoms",
+            "Open books – 6/side, head on towel",
+            "Cat-cow – 8 reps, neck in line with spine",
+            "Band pull-aparts – 12 reps, shoulders down",
+            "Supine figure-4 stretch – 30s/side"
+          ],
+          "slots": [
+            { "exerciseId": "lat-pulldown", "sets": 3, "repMin": 12, "repMax": 12, "group": "A", "note": "Neutral grip. Pull to the front of your chest only.", "alternatives": ["machine-pulldown"] },
+            { "exerciseId": "incline-db-curl", "sets": 3, "repMin": 10, "repMax": 12, "group": "A", "note": "Head rests on the bench.", "alternatives": ["db-curl", "db-hammer-curl"] },
+            { "exerciseId": "db-rdl", "sets": 3, "repMin": 10, "repMax": 10, "group": "B", "note": "Light. Gaze a few feet ahead.", "alternatives": ["cable-pull-through", "bodyweight-glute-bridge"] },
+            { "exerciseId": "single-arm-cable-pushdown", "sets": 3, "repMin": 12, "repMax": 12, "group": "B" },
+            { "exerciseId": "bird-dog", "sets": 3, "repMin": 8, "repMax": 8, "group": "C", "note": "Head neutral." },
+            { "exerciseId": "banded-clamshell", "sets": 3, "repMin": 15, "repMax": 15, "group": "C" }
+          ],
+          "finisher": ["Elliptical – 6 min intervals (30s hard / 30s easy)"],
+          "cooldown": [
+            "Chin tucks – 5 reps",
+            "Doorway chest stretch – 30s",
+            "Figure-4 or 90/90 hip stretch – 30s/side",
+            "Child's pose, forehead on stacked hands – 30s"
+          ]
+        }
+      ]
     }
   ],
   "exercises": [
@@ -1091,6 +1187,163 @@
       "increment": 5,
       "ratio": { "beginner": 0.0, "intermediate": 0.05, "advanced": 0.15 },
       "alternatives": ["cable-crunch", "hanging-knee-raise", "ab-machine"]
+    },
+    {
+      "id": "db-hammer-curl",
+      "name": "Hammer Curl",
+      "equipment": ["dumbbell"],
+      "primary": ["biceps", "forearms"],
+      "secondary": [],
+      "pattern": "isolation-arms",
+      "cue": "Palms facing each other the whole time. Elbows stay at your sides; curl up without swinging, then lower all the way down.",
+      "loadType": "per-side",
+      "increment": 5,
+      "ratio": { "beginner": 0.08, "intermediate": 0.13, "advanced": 0.17 },
+      "alternatives": ["db-curl", "cable-curl", "machine-curl"]
+    },
+    {
+      "id": "incline-db-curl",
+      "name": "Incline Dumbbell Curl",
+      "equipment": ["dumbbell"],
+      "primary": ["biceps"],
+      "secondary": ["forearms"],
+      "pattern": "isolation-arms",
+      "cue": "Sit back on a bench set to about 45-60 degrees, arms hanging straight down. Curl without letting your elbows drift forward, then lower slowly to a full stretch.",
+      "loadType": "per-side",
+      "increment": 5,
+      "ratio": { "beginner": 0.06, "intermediate": 0.1, "advanced": 0.14 },
+      "alternatives": ["db-curl", "db-hammer-curl", "cable-curl"]
+    },
+    {
+      "id": "single-arm-cable-pushdown",
+      "name": "Single-Arm Cable Pushdown",
+      "equipment": ["cable"],
+      "primary": ["triceps"],
+      "secondary": [],
+      "pattern": "isolation-arms",
+      "cue": "One handle, elbow pinned to your side. Push down until the arm is straight and squeeze, then let it come back up under control. Do all reps on one arm, then switch.",
+      "loadType": "total",
+      "increment": 5,
+      "ratio": { "beginner": 0.08, "intermediate": 0.14, "advanced": 0.2 },
+      "alternatives": ["cable-triceps-pushdown"],
+      "eachSide": true
+    },
+    {
+      "id": "bodyweight-glute-bridge",
+      "name": "Glute Bridge",
+      "equipment": ["bodyweight"],
+      "primary": ["glutes"],
+      "secondary": ["hamstrings"],
+      "pattern": "hinge",
+      "cue": "Lie on your back, knees bent, feet flat near your glutes. Drive through your heels to lift your hips until your body is a straight line from knees to shoulders, squeeze, then lower. Add a dumbbell on your hips when bodyweight gets easy.",
+      "loadType": "bodyweight",
+      "increment": 5,
+      "ratio": { "beginner": 0, "intermediate": 0, "advanced": 0 },
+      "alternatives": ["hip-thrust", "glute-bridge"]
+    },
+    {
+      "id": "dead-bug",
+      "name": "Dead Bug",
+      "equipment": ["bodyweight"],
+      "primary": ["abs"],
+      "secondary": [],
+      "pattern": "core",
+      "cue": "On your back, arms straight up, knees bent at 90 degrees over your hips. Press your low back into the floor and slowly lower the opposite arm and leg, then return. Keep the back flat the whole time.",
+      "loadType": "bodyweight",
+      "increment": 5,
+      "ratio": { "beginner": 0, "intermediate": 0, "advanced": 0 },
+      "alternatives": ["bird-dog"],
+      "noWeight": true,
+      "eachSide": true
+    },
+    {
+      "id": "pallof-press",
+      "name": "Pallof Press",
+      "equipment": ["cable"],
+      "primary": ["abs"],
+      "secondary": [],
+      "pattern": "core",
+      "cue": "Stand side-on to a cable at chest height, handle at your sternum. Press it straight out and hold for a beat without letting your torso twist, then bring it back. Do all reps facing one way, then switch.",
+      "loadType": "total",
+      "increment": 5,
+      "ratio": { "beginner": 0.08, "intermediate": 0.12, "advanced": 0.16 },
+      "alternatives": ["bird-dog", "dead-bug"],
+      "eachSide": true
+    },
+    {
+      "id": "cable-hip-abduction",
+      "name": "Cable Hip Abduction",
+      "equipment": ["cable"],
+      "primary": ["glutes"],
+      "secondary": [],
+      "pattern": "isolation-legs",
+      "cue": "Ankle cuff on the outside leg, standing side-on to a low cable and holding on for balance. Sweep the leg out to the side without leaning, pause, then return slowly.",
+      "loadType": "total",
+      "increment": 5,
+      "ratio": { "beginner": 0.04, "intermediate": 0.07, "advanced": 0.1 },
+      "alternatives": ["side-lying-leg-raise", "banded-clamshell"],
+      "eachSide": true
+    },
+    {
+      "id": "side-lying-leg-raise",
+      "name": "Side-Lying Leg Raise",
+      "equipment": ["bodyweight"],
+      "primary": ["glutes"],
+      "secondary": [],
+      "pattern": "isolation-legs",
+      "cue": "Lie on your side, bottom knee bent for balance, top leg straight. Lift the top leg up and slightly back with your toes pointing forward, pause, then lower slowly.",
+      "loadType": "bodyweight",
+      "increment": 5,
+      "ratio": { "beginner": 0, "intermediate": 0, "advanced": 0 },
+      "alternatives": ["banded-clamshell", "cable-hip-abduction"],
+      "noWeight": true,
+      "eachSide": true
+    },
+    {
+      "id": "side-plank-knees",
+      "name": "Side Plank (from Knees)",
+      "equipment": ["bodyweight"],
+      "primary": ["abs"],
+      "secondary": ["glutes"],
+      "pattern": "core",
+      "cue": "On your side, elbow under your shoulder, knees bent. Lift your hips so you're in a straight line from knees to head and hold. Breathe normally.",
+      "loadType": "bodyweight",
+      "increment": 5,
+      "ratio": { "beginner": 0, "intermediate": 0, "advanced": 0 },
+      "alternatives": ["pallof-press", "dead-bug"],
+      "noWeight": true,
+      "eachSide": true,
+      "measure": "seconds"
+    },
+    {
+      "id": "bird-dog",
+      "name": "Bird Dog",
+      "equipment": ["bodyweight"],
+      "primary": ["abs", "lower-back"],
+      "secondary": ["glutes"],
+      "pattern": "core",
+      "cue": "On hands and knees. Reach one arm forward and the opposite leg back until both are level with your torso, hold a second without your hips rotating, then return.",
+      "loadType": "bodyweight",
+      "increment": 5,
+      "ratio": { "beginner": 0, "intermediate": 0, "advanced": 0 },
+      "alternatives": ["dead-bug"],
+      "noWeight": true,
+      "eachSide": true
+    },
+    {
+      "id": "banded-clamshell",
+      "name": "Banded Clamshell",
+      "equipment": ["band"],
+      "primary": ["glutes"],
+      "secondary": [],
+      "pattern": "isolation-legs",
+      "cue": "Band just above your knees, lying on your side with hips and knees bent. Keep your feet together and open the top knee without rolling your hips back, then close slowly.",
+      "loadType": "bodyweight",
+      "increment": 5,
+      "ratio": { "beginner": 0, "intermediate": 0, "advanced": 0 },
+      "alternatives": ["side-lying-leg-raise", "cable-hip-abduction"],
+      "noWeight": true,
+      "eachSide": true
     }
   ]
 }

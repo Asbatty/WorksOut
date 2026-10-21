@@ -74,6 +74,13 @@ export interface Exercise {
   // range, per experience level. See suggest.ts / build-plan section 6.
   ratio: RatioSet;
   alternatives: string[]; // ordered exercise ids, best substitute first
+  /** What the "reps" number counts. "seconds" = a timed hold (side plank). */
+  measure?: "reps" | "seconds";
+  /** No load to log (dead bug, bird dog, band work): hide the weight stepper and
+   *  progress on reps/seconds only. */
+  noWeight?: boolean;
+  /** The rep (or seconds) target is per side, e.g. 8/side. */
+  eachSide?: boolean;
 }
 
 export interface ProgramSlot {
@@ -81,12 +88,36 @@ export interface ProgramSlot {
   sets: number;
   repMin: number;
   repMax: number;
+  /** Superset label. Consecutive slots sharing a group are done as a superset:
+   *  alternate one set of each, then rest. Normalised to "A", "B", ... */
+  group?: string;
+  /** Program-specific form note for this slot (shown under the exercise). */
+  note?: string;
+  /** Swap options for this slot, replacing the exercise's own list (e.g. to
+   *  keep a program's swaps clear of moves it avoids). */
+  alternatives?: string[];
 }
+
+/** Non-logged tick-off sections around the lifts. One string per item. */
+export type ChecklistKind = "warmup" | "finisher" | "cooldown";
+export const CHECKLIST_KINDS: ChecklistKind[] = ["warmup", "finisher", "cooldown"];
+export const CHECKLIST_TITLES: Record<ChecklistKind, string> = {
+  warmup: "Warm-up",
+  finisher: "Cardio finisher",
+  cooldown: "Cooldown"
+};
 
 export interface WorkoutDay {
   id: string; // "upper-a"
   name: string; // "Upper A"
   slots: ProgramSlot[];
+  /** Done before the lifts. */
+  warmup?: string[];
+  /** Done after the lifts, before the cooldown. */
+  finisher?: string[];
+  cooldown?: string[];
+  /** Rest between superset rounds, in seconds (shown as guidance). */
+  restSec?: number;
 }
 
 /**
@@ -153,6 +184,9 @@ export interface Session {
   // its finishedAt (so it still shows in History/Calendar) but also counts as
   // the active session on Today.
   editing?: boolean;
+  // Ticked checklist items, keyed "warmup:0", "cooldown:2", ... Not part of
+  // history or progression.
+  checked?: string[];
 }
 
 export interface Profile {

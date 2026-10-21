@@ -286,6 +286,19 @@ export function setExerciseNote(sessionId: string, exIndex: number, note: string
   );
 }
 
+/** Tick / untick a warm-up, finisher or cooldown item ("warmup:0"). Autosaves. */
+export function toggleChecklistItem(sessionId: string, key: string) {
+  set((s) =>
+    mapSession(s, sessionId, (sess) => {
+      const cur = sess.checked ?? [];
+      return {
+        ...sess,
+        checked: cur.includes(key) ? cur.filter((k) => k !== key) : [...cur, key]
+      };
+    })
+  );
+}
+
 /** Mark an exercise as skipped (or un-skip it) for this session. */
 export function setExerciseSkipped(sessionId: string, exIndex: number, skipped: boolean) {
   set((s) =>

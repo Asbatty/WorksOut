@@ -28,7 +28,8 @@ const {
   deleteProfile,
   profileList,
   updateSet,
-  setExerciseSkipped
+  setExerciseSkipped,
+  toggleChecklistItem
 } = await import("./store");
 const { defaultState } = await import("./storage");
 const { cycleIndex } = await import("./schedule");
@@ -179,5 +180,21 @@ describe("skipped exercises", () => {
     setExerciseSkipped(id, 0, false);
     finishSession(routine, id);
     expect(exerciseHistory(getState().sessions, "x")).toHaveLength(1);
+  });
+});
+
+describe("checklist ticks", () => {
+  it("toggle on and off, and stay out of exercise history", () => {
+    const id = startSession(routine, "upper-a", () => 100);
+    toggleChecklistItem(id, "warmup:0");
+    toggleChecklistItem(id, "cooldown:2");
+    expect(getState().sessions.find((x) => x.id === id)!.checked).toEqual([
+      "warmup:0",
+      "cooldown:2"
+    ]);
+    toggleChecklistItem(id, "warmup:0");
+    expect(getState().sessions.find((x) => x.id === id)!.checked).toEqual(["cooldown:2"]);
+    finishSession(routine, id);
+    expect(exerciseHistory(getState().sessions, "x")).toHaveLength(0);
   });
 });

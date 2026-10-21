@@ -98,6 +98,8 @@ export function suggestWeight(
   profile: Profile,
   history: HistoryEntry[]
 ): WeightSuggestion {
+  if (exercise.noWeight) return suggestNoWeight(exercise, slot, history);
+
   if (history.length === 0) {
     return {
       weight: startingWeight(exercise, profile),
@@ -163,6 +165,42 @@ export function suggestWeight(
     weight: lastWeight,
     repTarget: "beat-last",
     reason: "Same weight — beat last session's reps",
+    isGuess: false
+  };
+}
+
+/**
+ * Moves with no load to log (dead bug, bird dog, side plank, band work). The
+ * weight is always 0; progress means chasing reps/seconds through the range,
+ * then moving to a harder version once every set hits the top.
+ */
+function suggestNoWeight(
+  exercise: Exercise,
+  slot: Pick<ProgramSlot, "repMin" | "repMax">,
+  history: HistoryEntry[]
+): WeightSuggestion {
+  const unit = exercise.measure === "seconds" ? "s" : " reps";
+  if (history.length === 0) {
+    return {
+      weight: 0,
+      repTarget: "hold",
+      reason: `No weight — aim for ${slot.repMin}–${slot.repMax}${unit} with clean form`,
+      isGuess: true
+    };
+  }
+  const last = history[history.length - 1];
+  if (allWorkingSetsReached(last.sets, slot.repMax)) {
+    return {
+      weight: 0,
+      repTarget: "hold",
+      reason: `Hit ${slot.repMax}${unit} on every set — ready for a harder version`,
+      isGuess: false
+    };
+  }
+  return {
+    weight: 0,
+    repTarget: "beat-last",
+    reason: exercise.measure === "seconds" ? "Beat last session's hold" : "Beat last session's reps",
     isGuess: false
   };
 }

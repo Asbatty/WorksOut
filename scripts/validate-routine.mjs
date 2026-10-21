@@ -38,7 +38,29 @@ for (const prog of routine.programs ?? []) {
       if (slot.repMin < 1 || slot.repMax < slot.repMin)
         problems.push(`${prog.id}/${day.id} slot ${i}: bad rep range ${slot.repMin}-${slot.repMax}`);
       if (slot.sets < 1) problems.push(`${prog.id}/${day.id} slot ${i}: ${slot.sets} sets`);
+      for (const altId of slot.alternatives ?? []) {
+        if (!ids.has(altId))
+          problems.push(`${prog.id}/${day.id} slot ${i}: unknown alternative "${altId}"`);
+      }
     });
+    // Supersets: each group label marks one run of 2+ neighbouring slots.
+    const runs = [];
+    day.slots.forEach((slot, i) => {
+      const last = runs[runs.length - 1];
+      if (slot.group && last?.group === slot.group) last.size++;
+      else runs.push({ group: slot.group, size: 1 });
+    });
+    const seenGroups = new Set();
+    for (const r of runs) {
+      if (!r.group) continue;
+      if (r.size < 2) problems.push(`${prog.id}/${day.id}: superset "${r.group}" has one exercise`);
+      if (seenGroups.has(r.group)) problems.push(`${prog.id}/${day.id}: superset "${r.group}" is split up`);
+      seenGroups.add(r.group);
+    }
+    for (const k of ["warmup", "finisher", "cooldown"]) {
+      if (day[k] !== undefined && !(Array.isArray(day[k]) && day[k].every((x) => typeof x === "string" && x.trim())))
+        problems.push(`${prog.id}/${day.id}: ${k} must be a list of non-empty strings`);
+    }
   }
 }
 
@@ -52,6 +74,8 @@ for (const ex of routine.exercises) {
     if (typeof ex.ratio?.[lvl] !== "number") problems.push(`exercise "${ex.id}": ratio.${lvl} missing`);
   }
   if (!(ex.increment > 0)) problems.push(`exercise "${ex.id}": increment must be > 0`);
+  if (ex.measure !== undefined && !["reps", "seconds"].includes(ex.measure))
+    problems.push(`exercise "${ex.id}": bad measure "${ex.measure}"`);
 }
 
 if (problems.length) {

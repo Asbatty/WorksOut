@@ -4,6 +4,15 @@ Fast open for Claude Code. Starting a session on WorksOut? This file replaces
 re-reading README / NOTES / CHECKLIST and re-running git archaeology at the open.
 Pull in the rest only when the task needs it — routing table below.
 
+## 2026-10-21 — Sophia program
+
+Added the "Sophia" program (3-day A/B/C, supersets, warm-up/finisher/cooldown
+checklists) plus the features it needed: supersets, checklist sections, timed /
+no-weight / per-side exercises, per-slot notes and swap lists. 11 new library
+exercises. See CLAUDE.md "Supersets / checklists / timed moves". `npm test` →
+58 pass; build → 74 exercises, 5 programs, 21 days. Browser QA done at 412px
+(Day A superset flow, Day B timed + no-weight). Real-device QA still open.
+
 ## Current state — verified 2026-09-08
 
 Baseline: `9704891` (PR #1 merge) plus the 2026-09-08 UX commits on `main`,

@@ -156,3 +156,33 @@ describe("mostCommonWeight", () => {
     expect(mostCommonWeight(entry([100, 105], [8, 6]))).toBe(105);
   });
 });
+
+describe("no-weight moves", () => {
+  const plank = exercise({
+    id: "side-plank",
+    loadType: "bodyweight",
+    noWeight: true,
+    measure: "seconds",
+    ratio: { beginner: 0, intermediate: 0, advanced: 0 }
+  });
+  const hold = { repMin: 20, repMax: 30 };
+
+  it("never suggest a weight, even from a ratio", () => {
+    const s = suggestWeight(exercise({ noWeight: true }), slot, profile(), []);
+    expect(s.weight).toBe(0);
+    expect(s.isGuess).toBe(true);
+  });
+
+  it("chase seconds inside the range", () => {
+    const s = suggestWeight(plank, hold, profile(), [entry([0, 0, 0], [25, 22, 20])]);
+    expect(s.weight).toBe(0);
+    expect(s.repTarget).toBe("beat-last");
+    expect(s.reason).toMatch(/hold/);
+  });
+
+  it("call for a harder version at the top of the range", () => {
+    const s = suggestWeight(plank, hold, profile(), [entry([0, 0, 0], [30, 30, 30])]);
+    expect(s.weight).toBe(0);
+    expect(s.reason).toMatch(/harder/);
+  });
+});

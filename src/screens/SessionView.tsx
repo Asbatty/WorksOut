@@ -9,6 +9,7 @@ import {
   useAppState
 } from "../store";
 import { findExercise } from "../routine";
+import { formatSet } from "../format";
 
 export function formatSessionDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -120,8 +121,7 @@ export function SessionView({ id }: { id: string }) {
               <div className="history-sets session-sets">
                 {workingSets.map((s, j) => (
                   <span key={j} className="set-pill">
-                    {s.weight}
-                    {ex?.loadType === "assisted" ? " assist" : " lb"} × {s.reps}
+                    {formatSet(ex, s)}
                   </span>
                 ))}
               </div>

@@ -9,6 +9,7 @@ import type {
   AppState,
   Exercise,
   Program,
+  ProgramSlot,
   Routine,
   RoutineFile,
   WorkoutDay
@@ -94,14 +95,79 @@ export function resolvedExerciseId(
   return state.swaps[slotKey(dayId, slotIndex)] ?? slotExerciseId;
 }
 
-/** Ordered list of alternative exercises for an exercise (best first). */
-export function getAlternatives(routine: Routine, exerciseId: string): Exercise[] {
+/** Ordered list of alternative exercises for an exercise (best first). A
+ *  slot's own `alternatives` list, when given, replaces the exercise's. */
+export function getAlternatives(
+  routine: Routine,
+  exerciseId: string,
+  slot?: Pick<ProgramSlot, "alternatives">
+): Exercise[] {
   const ex = findExercise(routine, exerciseId);
   if (!ex) return [];
   const map = exerciseMap(routine);
-  return ex.alternatives
+  return (slot?.alternatives ?? ex.alternatives)
     .map((id) => map.get(id))
     .filter((e): e is Exercise => Boolean(e));
+}
+
+// --- supersets -------------------------------------------------------------
+
+/** A run of slots done together. `group` is set only for real supersets (2+). */
+export interface SlotBlock {
+  group?: string;
+  indices: number[];
+}
+
+/**
+ * Split a day's slots into blocks: consecutive slots with the same non-empty
+ * `group` form one superset; everything else is its own single-slot block.
+ */
+export function slotBlocks(slots: ProgramSlot[]): SlotBlock[] {
+  const blocks: SlotBlock[] = [];
+  slots.forEach((slot, i) => {
+    const prev = blocks[blocks.length - 1];
+    if (slot.group && prev?.group === slot.group && prev.indices[prev.indices.length - 1] === i - 1) {
+      prev.indices.push(i);
+    } else {
+      blocks.push({ group: slot.group || undefined, indices: [i] });
+    }
+  });
+  // A "group" of one isn't a superset.
+  for (const b of blocks) if (b.indices.length < 2) delete b.group;
+  return blocks;
+}
+
+/** Index -> superset block, for slots that are in one. */
+export function supersetOf(slots: ProgramSlot[]): Map<number, SlotBlock> {
+  const out = new Map<number, SlotBlock>();
+  for (const b of slotBlocks(slots)) if (b.group) for (const i of b.indices) out.set(i, b);
+  return out;
+}
+
+/**
+ * Re-letter supersets A, B, C... in order and drop the group from any slot left
+ * on its own (after a move or delete in the editor). Returns new slot objects.
+ */
+export function normalizeGroups(slots: ProgramSlot[]): ProgramSlot[] {
+  const out = slots.map((s) => {
+    const copy = { ...s };
+    delete copy.group;
+    return copy;
+  });
+  let n = 0;
+  for (const b of slotBlocks(slots)) {
+    if (!b.group) continue;
+    const letter = String.fromCharCode(65 + (n++ % 26));
+    for (const i of b.indices) out[i].group = letter;
+  }
+  return out;
+}
+
+/** "A1", "A2"... for slots in a superset, undefined otherwise. */
+export function slotLabel(slots: ProgramSlot[], index: number): string | undefined {
+  const b = supersetOf(slots).get(index);
+  if (!b?.group) return undefined;
+  return `${b.group}${b.indices.indexOf(index) + 1}`;
 }
 
 // --- validation -----------------------------------------------------------
@@ -131,7 +197,21 @@ export function validateRoutine(routine: Routine): string[] {
         problems.push(`day "${day.id}" slot ${i} has an invalid rep range ${slot.repMin}-${slot.repMax}`);
       }
       if (slot.sets < 1) problems.push(`day "${day.id}" slot ${i} has ${slot.sets} sets`);
+      for (const altId of slot.alternatives ?? []) {
+        if (!ids.has(altId)) {
+          problems.push(`day "${day.id}" slot ${i} lists unknown alternative "${altId}"`);
+        }
+      }
     });
+    // A superset label must mark one run of 2+ neighbouring slots.
+    const seen = new Set<string>();
+    for (const b of slotBlocks(day.slots)) {
+      const label = day.slots[b.indices[0]].group;
+      if (!label) continue;
+      if (!b.group) problems.push(`day "${day.id}" superset "${label}" has only one exercise`);
+      else if (seen.has(label)) problems.push(`day "${day.id}" superset "${label}" is split up`);
+      seen.add(label);
+    }
   }
 
   for (const ex of routine.exercises) {

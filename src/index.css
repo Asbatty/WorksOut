@@ -409,6 +409,126 @@ button.ghost:active,
   letter-spacing: 0.04em;
 }
 
+/* ---- Today: supersets ---- */
+/* Exercises done back to back share a tinted rail with a header. */
+.superset {
+  margin: 12px 0;
+  padding: 2px 0 2px 10px;
+  border-left: 3px solid var(--accent);
+}
+.superset.done {
+  border-left-color: var(--good);
+}
+.superset .card {
+  margin: 8px 0;
+}
+.superset-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0;
+}
+.superset-title {
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.superset.done .superset-title {
+  color: var(--good);
+}
+.superset-meta {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+.ss-label {
+  display: inline-block;
+  min-width: 28px;
+  margin-right: 8px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: 2px;
+}
+.slot-note {
+  margin-top: 6px;
+  color: var(--text);
+  font-size: 0.82rem;
+  opacity: 0.85;
+}
+
+/* ---- Today: warm-up / finisher / cooldown checklists ---- */
+.card.checklist {
+  padding: 4px 12px;
+}
+.card.checklist.done {
+  opacity: 0.72;
+}
+.checklist .disclosure {
+  width: 100%;
+  min-height: var(--tap);
+}
+.checklist .disclosure .ex-name {
+  flex: 1;
+}
+.checklist-count {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.checklist-items {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+}
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 6px 4px;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.92rem;
+  text-align: left;
+}
+.check-item.static {
+  min-height: 0;
+  padding: 8px 4px;
+}
+.check-box {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  color: var(--bg);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+.check-item.on .check-box {
+  background: var(--good);
+  border-color: var(--good);
+}
+.check-item.on .check-text {
+  color: var(--text-dim);
+  text-decoration: line-through;
+}
+
 /* ---- Stepper ---- */
 .stepper {
   display: block;
@@ -1043,6 +1163,16 @@ button.ghost.small,
   font-weight: 600;
   font-size: 0.9rem;
   color: var(--accent);
+}
+.slot-superset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.day-extras {
+  margin-top: 6px;
+  border-top: 1px solid var(--border);
 }
 .add-slot {
   width: 100%;

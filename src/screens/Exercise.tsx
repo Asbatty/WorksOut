@@ -4,6 +4,7 @@ import { useAppState } from "../store";
 import { findExercise, getAlternatives } from "../routine";
 import { exerciseHistory, topSet } from "../history";
 import { Chart } from "../components/Chart";
+import { formatSet, repUnit } from "../format";
 import type { Equipment } from "../types";
 
 const EQUIP_LABEL: Record<Equipment, string> = {
@@ -46,10 +47,10 @@ export function Exercise({ id }: { id: string }) {
   const history = exerciseHistory(state.sessions, id);
   const chartPoints = history.map((h) => ({
     date: h.date,
-    value: topSet(h.sets).weight
+    // No-weight moves chart their best reps / seconds instead of load.
+    value: ex.noWeight ? topSet(h.sets).reps : topSet(h.sets).weight
   }));
   const alternatives = getAlternatives(routine, id);
-  const unit = ex.loadType === "assisted" ? " assist" : " lb";
 
   return (
     <>
@@ -93,7 +94,7 @@ export function Exercise({ id }: { id: string }) {
         <p className="dim">No logged sessions for this exercise yet.</p>
       ) : (
         <>
-          <Chart points={chartPoints} unit="lb" />
+          <Chart points={chartPoints} unit={ex.noWeight ? repUnit(ex) : "lb"} />
           <ul className="history-list">
             {[...history].reverse().map((h) => (
               <li key={h.sessionId} className="history-item">
@@ -110,8 +111,7 @@ export function Exercise({ id }: { id: string }) {
                 <span className="history-sets">
                   {h.sets.map((s, i) => (
                     <span key={i} className="set-pill">
-                      {s.weight}
-                      {unit} × {s.reps}
+                      {formatSet(ex, s)}
                     </span>
                   ))}
                 </span>

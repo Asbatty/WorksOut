@@ -4,6 +4,7 @@ import { useRoutine } from "../useRoutine";
 import { reopenSession, useAppState } from "../store";
 import { findExercise } from "../routine";
 import { formatSessionDate } from "./SessionView";
+import { formatSet } from "../format";
 
 export function History() {
   const { routine, dayName } = useRoutine();
@@ -82,8 +83,7 @@ export function History() {
                           <span className="history-sets">
                             {working.map((st, j) => (
                               <span key={j} className="set-pill">
-                                {st.weight}
-                                {ex?.loadType === "assisted" ? " assist" : " lb"} × {st.reps}
+                                {formatSet(ex, st)}
                               </span>
                             ))}
                           </span>

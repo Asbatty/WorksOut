@@ -68,6 +68,7 @@ src/storage.ts  loadState/saveState (one localStorage key "lift.appstate"),
 | `src/useRoutine.ts` | the hook screens use; also `dayName(id)` resolves across all programs |
 | `src/schedule.ts` | rolling cycle math (nextDay, workoutNumber, advance, positionAfterDay) |
 | `src/suggest.ts` | starting weight + double progression (build-plan section 6) |
+| `src/format.ts` | set / rep-target text for timed, no-weight and per-side moves |
 | `src/history.ts` | pull an exercise's past sets out of finished sessions; `workoutsSinceBackup()` |
 | `src/platform.ts` | phone-OS detection, `isStandalone()`, captured `beforeinstallprompt` |
 | `src/persistence.ts` | best-effort `navigator.storage.persist()` (called from `main.tsx`) |
@@ -153,6 +154,20 @@ build) enforce this. It auto-appears in Settings → Program.
 `{beginner,intermediate,advanced}` (× bodyweight for the rep-range midpoint),
 `alternatives[]` (must resolve). Custom exercises added in the Editor get
 `ratio` 0 / `loadType` "total".
+
+**Supersets / checklists / timed moves** (added 2026-10-21 for the Sophia
+program) → all optional fields, so other programs are untouched:
+- `ProgramSlot.group`: neighbouring slots sharing a label are a superset.
+  `routine.ts` `slotBlocks()` / `normalizeGroups()` / `slotLabel()`. Today wraps
+  them in `.superset`; ticking a set opens the partner and only starts rest once
+  the round is done. Editor has "Superset with next" / "Remove from superset"
+  and re-letters groups on every commit.
+- `ProgramSlot.note` (per-day form note) and `ProgramSlot.alternatives`
+  (replaces the exercise's swap list for that slot).
+- `WorkoutDay.warmup` / `finisher` / `cooldown` (string lists) + `restSec`.
+  Ticks live on `Session.checked` ("warmup:0"); never in history/progression.
+- `Exercise.measure: "seconds"`, `noWeight`, `eachSide`. Display goes through
+  `src/format.ts`; `suggest.ts` has a no-weight path.
 
 **Change a suggestion rule** → `src/suggest.ts` only, then update
 `src/suggest.test.ts`. Rules are build-plan section 6.

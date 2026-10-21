@@ -1,10 +1,19 @@
 import { useState } from "react";
 import { useRoutine } from "../useRoutine";
 import { setRoutineOverlay, useAppState } from "../store";
-import { validateRoutine } from "../routine";
+import { normalizeGroups, slotLabel, supersetOf, validateRoutine } from "../routine";
 import { Stepper } from "../components/Stepper";
 import { ExercisePicker } from "../components/ExercisePicker";
-import type { Equipment, Exercise, Muscle, Pattern, Routine } from "../types";
+import {
+  CHECKLIST_KINDS,
+  CHECKLIST_TITLES,
+  type ChecklistKind,
+  type Equipment,
+  type Exercise,
+  type Muscle,
+  type Pattern,
+  type Routine
+} from "../types";
 
 const EQUIPMENT: Equipment[] = [
   "barbell",
@@ -56,6 +65,9 @@ function clone(r: Routine): Routine {
  *  entry per day). Repeating a day in a cycle isn't exposed in v1. */
 function syncCycle(r: Routine): Routine {
   r.cycle = r.days.map((d) => d.id);
+  // Re-letter supersets and drop any left with a single exercise after a
+  // move / delete.
+  for (const d of r.days) d.slots = normalizeGroups(d.slots);
   return r;
 }
 
@@ -150,12 +162,19 @@ export function Editor() {
   const setSlot = (
     dayId: string,
     i: number,
-    patch: Partial<{ sets: number; repMin: number; repMax: number; exerciseId: string }>
+    patch: Partial<{
+      sets: number;
+      repMin: number;
+      repMax: number;
+      exerciseId: string;
+      note: string;
+    }>
   ) => {
     const r = clone(routine);
     const d = r.days.find((x) => x.id === dayId);
     if (!d) return;
     d.slots[i] = { ...d.slots[i], ...patch };
+    if (d.slots[i].note === "") delete d.slots[i].note;
     // Keep the rep range coherent.
     if (d.slots[i].repMax < d.slots[i].repMin) d.slots[i].repMax = d.slots[i].repMin;
     commit(r);
@@ -177,6 +196,40 @@ export function Editor() {
     commit(r);
     // Open the fresh slot so its sets / reps are right there to set.
     setOpenSlots((prev) => new Set(prev).add(slotKey(dayId, newIndex)));
+  };
+
+  /** Superset slot i with the one after it (joining any superset either is in). */
+  const linkWithNext = (dayId: string, i: number) => {
+    const r = clone(routine);
+    const d = r.days.find((x) => x.id === dayId);
+    if (!d || i + 1 >= d.slots.length) return;
+    const label = d.slots[i].group ?? d.slots[i + 1].group ?? "new";
+    const nextGroup = d.slots[i + 1].group;
+    d.slots.forEach((sl, k) => {
+      if (k === i || k === i + 1 || (nextGroup && k > i && sl.group === nextGroup)) {
+        sl.group = label;
+      }
+    });
+    commit(r);
+  };
+  /** Take slot i out of its superset. */
+  const unlink = (dayId: string, i: number) => {
+    const r = clone(routine);
+    const d = r.days.find((x) => x.id === dayId);
+    if (!d) return;
+    delete d.slots[i].group;
+    commit(r);
+  };
+  const setDayField = (
+    dayId: string,
+    patch: Partial<Record<ChecklistKind, string[]>> & { restSec?: number }
+  ) => {
+    const r = clone(routine);
+    const d = r.days.find((x) => x.id === dayId);
+    if (!d) return;
+    Object.assign(d, patch);
+    for (const k of CHECKLIST_KINDS) if (d[k] && d[k]!.length === 0) delete d[k];
+    commit(r);
   };
 
   const addCustomExercise = (ex: Exercise) => {
@@ -232,6 +285,10 @@ export function Editor() {
           {day.slots.map((slot, si) => {
             const ex = routine.exercises.find((x) => x.id === slot.exerciseId);
             const open = openSlots.has(slotKey(day.id, si));
+            const label = slotLabel(day.slots, si);
+            const inSuperset = supersetOf(day.slots).has(si);
+            const linkedToNext =
+              inSuperset && si + 1 < day.slots.length && day.slots[si + 1].group === slot.group;
             return (
               <div key={si} className="slot-row">
                 <button
@@ -241,6 +298,7 @@ export function Editor() {
                   onClick={() => toggleSlot(day.id, si)}
                 >
                   <span className={open ? "caret open" : "caret"}>▸</span>
+                  {label && <span className="ss-label">{label}</span>}
                   <span className="ex-name">{ex?.name ?? slot.exerciseId}</span>
                   <span className="slot-summary">
                     {slot.sets} × {slot.repMin}–{slot.repMax}
@@ -296,6 +354,24 @@ export function Editor() {
                         onChange={(v) => setSlot(day.id, si, { repMax: v })}
                       />
                     </div>
+                    <div className="slot-superset">
+                      {!linkedToNext && si + 1 < day.slots.length && (
+                        <button className="ghost small" onClick={() => linkWithNext(day.id, si)}>
+                          Superset with next
+                        </button>
+                      )}
+                      {inSuperset && (
+                        <button className="ghost small" onClick={() => unlink(day.id, si)}>
+                          Remove from superset
+                        </button>
+                      )}
+                    </div>
+                    <TextField
+                      label="Form note"
+                      value={slot.note ?? ""}
+                      placeholder="Shown under the exercise on this day"
+                      onCommit={(v) => setSlot(day.id, si, { note: v.trim() })}
+                    />
                   </div>
                 )}
               </div>
@@ -308,6 +384,14 @@ export function Editor() {
           >
             + Add exercise
           </button>
+
+          <DayExtras
+            dayId={day.id}
+            lists={{ warmup: day.warmup, finisher: day.finisher, cooldown: day.cooldown }}
+            restSec={day.restSec}
+            hasSupersets={supersetOf(day.slots).size > 0}
+            onChange={(patch) => setDayField(day.id, patch)}
+          />
         </div>
       ))}
 
@@ -467,6 +551,106 @@ function CustomExerciseForm({
           Add
         </button>
       </div>
+    </div>
+  );
+}
+
+/** Textarea that commits on blur, so typing (and blank lines) isn't fought by
+ *  the autosave round-trip. */
+function TextField({
+  label,
+  value,
+  placeholder,
+  rows = 2,
+  onCommit
+}: {
+  label: string;
+  value: string;
+  placeholder?: string;
+  rows?: number;
+  onCommit: (v: string) => void;
+}) {
+  const [draft, setDraft] = useState(value);
+  const [focused, setFocused] = useState(false);
+  return (
+    <label className="note-field">
+      <span>{label}</span>
+      <textarea
+        rows={rows}
+        value={focused ? draft : value}
+        placeholder={placeholder}
+        onFocus={() => {
+          setDraft(value);
+          setFocused(true);
+        }}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={() => {
+          setFocused(false);
+          if (draft !== value) onCommit(draft);
+        }}
+      />
+    </label>
+  );
+}
+
+/** Per-day warm-up / finisher / cooldown lists and superset rest. */
+function DayExtras({
+  dayId,
+  lists,
+  restSec,
+  hasSupersets,
+  onChange
+}: {
+  dayId: string;
+  lists: Partial<Record<ChecklistKind, string[]>>;
+  restSec?: number;
+  hasSupersets: boolean;
+  onChange: (patch: Partial<Record<ChecklistKind, string[]>> & { restSec?: number }) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const count = CHECKLIST_KINDS.reduce((n, k) => n + (lists[k]?.length ?? 0), 0);
+  return (
+    <div className="day-extras">
+      <button
+        type="button"
+        className="disclosure slot-disclosure"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span className={open ? "caret open" : "caret"}>▸</span>
+        <span className="ex-name">Warm-up, finisher &amp; cooldown</span>
+        <span className="slot-summary">{count ? `${count} items` : "none"}</span>
+      </button>
+      {open && (
+        <div className="slot-body">
+          <p className="dim small">One item per line. These are ticked off during the workout, not logged.</p>
+          {CHECKLIST_KINDS.map((k) => (
+            <TextField
+              key={`${dayId}-${k}`}
+              label={CHECKLIST_TITLES[k]}
+              rows={Math.max(2, (lists[k]?.length ?? 0) + 1)}
+              value={(lists[k] ?? []).join("\n")}
+              onCommit={(v) =>
+                onChange({
+                  [k]: v
+                    .split("\n")
+                    .map((line) => line.trim())
+                    .filter(Boolean)
+                })
+              }
+            />
+          ))}
+          {hasSupersets && (
+            <Stepper
+              label="Superset rest (s)"
+              value={restSec ?? 0}
+              step={15}
+              min={0}
+              onChange={(v) => onChange({ restSec: v || undefined })}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

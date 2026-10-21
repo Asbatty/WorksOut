@@ -8,7 +8,8 @@
 
 import { useEffect, useState } from "react";
 import { Stepper } from "./Stepper";
-import type { SetLog } from "../types";
+import type { Exercise, SetLog } from "../types";
+import { formatSet, repLabel } from "../format";
 
 interface SetRowProps {
   index: number;
@@ -17,6 +18,8 @@ interface SetRowProps {
   /** Reps this set hit last session, shown as a ghost value. */
   ghostReps?: number;
   weightSuffix?: string;
+  /** The exercise, so timed / no-weight moves label and fold correctly. */
+  exercise?: Exercise;
   onChange: (patch: Partial<SetLog>) => void;
 }
 
@@ -26,8 +29,14 @@ export function SetRow({
   weightStep,
   ghostReps,
   weightSuffix = "lb",
+  exercise,
   onChange
 }: SetRowProps) {
+  const showWeight = !exercise?.noWeight;
+  const timed = exercise?.measure === "seconds";
+  const summary = exercise
+    ? formatSet(exercise, set)
+    : `${set.weight} ${weightSuffix} × ${set.reps}`;
   const [editing, setEditing] = useState(false);
   // Any time the set becomes done, fold it — unless the user has explicitly
   // opened it again (editing). Un-ticking leaves the steppers visible anyway.
@@ -50,16 +59,14 @@ export function SetRow({
             aria-expanded={!collapsed}
             aria-label={
               collapsed
-                ? `Set ${index + 1}, ${set.weight} ${weightSuffix} by ${set.reps} reps — edit`
+                ? `Set ${index + 1}, ${summary} — edit`
                 : `Collapse set ${index + 1}`
             }
             onClick={() => setEditing((e) => !e)}
           >
             <span>Set {index + 1}</span>
             {collapsed && (
-              <span className="set-summary">
-                {set.weight} {weightSuffix} × {set.reps}
-              </span>
+              <span className="set-summary">{summary}</span>
             )}
           </button>
         ) : (
@@ -86,17 +93,20 @@ export function SetRow({
 
       {!collapsed && (
         <>
+          {showWeight && (
+            <Stepper
+              label="Weight"
+              value={set.weight}
+              step={weightStep}
+              onChange={(weight) => onChange({ weight })}
+              suffix={weightSuffix}
+            />
+          )}
           <Stepper
-            label="Weight"
-            value={set.weight}
-            step={weightStep}
-            onChange={(weight) => onChange({ weight })}
-            suffix={weightSuffix}
-          />
-          <Stepper
-            label="Reps"
+            label={repLabel(exercise)}
             value={set.reps}
-            step={1}
+            step={timed ? 5 : 1}
+            suffix={timed ? "s" : undefined}
             mode="numeric"
             ghost={ghostReps}
             onChange={(reps) => onChange({ reps })}
