@@ -183,6 +183,27 @@ button.ghost:active,
 .rest-timer.at-corner {
   bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 12px);
 }
+/* Dragged by the user: touch-action none so a swipe on the pill moves it
+   instead of scrolling the page. Once dropped it eases to the nearer edge. */
+.rest-timer {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.rest-timer.placed {
+  transition: left 0.2s ease, top 0.2s ease;
+}
+.rest-timer.dragging {
+  transition: none;
+  cursor: grabbing;
+  transform: scale(1.06);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+}
+/* Double-tap the time to shrink to just the time. */
+.rest-timer.compact {
+  padding: 8px 14px;
+}
 .rest-time {
   font-variant-numeric: tabular-nums;
   font-weight: 700;

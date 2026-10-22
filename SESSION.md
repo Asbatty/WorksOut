@@ -4,6 +4,14 @@ Fast open for Claude Code. Starting a session on WorksOut? This file replaces
 re-reading README / NOTES / CHECKLIST and re-running git archaeology at the open.
 Pull in the rest only when the task needs it — routing table below.
 
+## 2026-10-21 — Draggable rest timer
+
+Rest timer pill can be dragged anywhere; snaps to the nearer side edge on
+release, remembered per device (`lift.restTimerUi` in localStorage). Dragging
+from a button doesn't press it. Double-tap the time to shrink to time-only.
+Clamped above the nav and re-clamped on rotate. Touch QA done in headless
+Chromium at 412px. Real-device QA still open.
+
 ## 2026-10-21 — Sophia program
 
 Added the "Sophia" program (3-day A/B/C, supersets, warm-up/finisher/cooldown

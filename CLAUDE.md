@@ -84,7 +84,7 @@ src/storage.ts  loadState/saveState (one localStorage key "lift.appstate"),
 | `components/Stepper.tsx` | big +/- input, press-and-hold repeat, `mode` = decimal/numeric |
 | `components/SetRow.tsx` | one set: header (num + Done toggle), weight row, reps row. A done set folds to a summary line (local `editing` state reopens it) |
 | `components/Chart.tsx` | dependency-free inline-SVG line chart |
-| `components/RestTimer.tsx` | floating stopwatch pill (App-level). Renders only while running; `at-corner` off Today, `raised` for the finish-confirm bar |
+| `components/RestTimer.tsx` | floating stopwatch pill (App-level). Renders only while running; `at-corner` off Today, `raised` for the finish-confirm bar. Draggable (pointer events, 8px slop, snaps to nearer side edge); a dragged spot and double-tap compact mode are stored per device in localStorage `lift.restTimerUi` (not AppState) and override the auto placement |
 | `components/ExercisePicker.tsx` | searchable exercise list (Editor) |
 | `scripts/validate-routine.mjs` | routine.json integrity (runs in `build`) |
 | `scripts/gen-icons.mjs` | PNG icon generator (no image lib) |
