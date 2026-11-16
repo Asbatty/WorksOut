@@ -131,7 +131,20 @@ export function suggestWeight(
   const inc = exercise.increment;
 
   // Every set reached the top of the range: add load, reset reps to the bottom.
+  // Unless the jump is too big to land inside the range (light dumbbell / cable
+  // work, where +5 lb can be +33%): then keep the weight and build reps past
+  // repMax until the heavier weight is reachable. Without this the app loops
+  // 15 -> 20 -> miss, miss -> 15 -> 20 ...
   if (allWorkingSetsReached(last.sets, slot.repMax)) {
+    const gate = jumpGate(exercise, slot, lastWeight, minWorkingReps(last.sets));
+    if (gate) {
+      return {
+        weight: lastWeight,
+        repTarget: "beat-last",
+        reason: `+${inc} is a big jump here — build to ${gate.repsNeeded} reps first`,
+        isGuess: false
+      };
+    }
     return {
       weight: lastWeight + inc,
       repTarget: "repMin",
@@ -167,6 +180,45 @@ export function suggestWeight(
     reason: "Same weight — beat last session's reps",
     isGuess: false
   };
+}
+
+// --- big-jump gate ----------------------------------------------------------
+
+/** Epley estimated one-rep max. */
+export function e1rm(weight: number, reps: number): number {
+  return weight * (1 + reps / 30);
+}
+
+/** Reps Epley predicts at `weight` for a given e1RM (may be fractional / negative). */
+export function predictedReps(oneRm: number, weight: number): number {
+  return 30 * (oneRm / weight - 1);
+}
+
+function minWorkingReps(sets: SetLog[]): number {
+  return Math.min(...sets.filter(isWorkingSet).map((s) => s.reps));
+}
+
+/**
+ * Should we hold off adding an increment? Uses the weakest working set's e1RM:
+ * if it predicts fewer than repMin - 1 reps at the next weight, the jump is too
+ * big. Returns the reps needed at the current weight before jumping, or null
+ * if the jump is fine. Only applies to loaded movements ("total" / "per-side")
+ * with a non-zero weight.
+ */
+export function jumpGate(
+  exercise: Exercise,
+  slot: Pick<ProgramSlot, "repMin" | "repMax">,
+  weight: number,
+  reps: number
+): { repsNeeded: number } | null {
+  if (exercise.loadType !== "total" && exercise.loadType !== "per-side") return null;
+  const next = weight + exercise.increment;
+  if (weight <= 0 || exercise.increment <= 0) return null;
+  const target = slot.repMin - 1;
+  if (predictedReps(e1rm(weight, reps), next) >= target) return null;
+  // Smallest whole rep count at `weight` whose e1RM supports `target` at `next`.
+  const repsNeeded = Math.ceil(predictedReps(e1rm(next, target), weight) - 1e-9);
+  return { repsNeeded: Math.max(repsNeeded, reps + 1) };
 }
 
 /**

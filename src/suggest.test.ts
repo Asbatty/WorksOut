@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   correctAfterFirstSession,
   floorToIncrement,
+  jumpGate,
   mostCommonWeight,
   roundToIncrement,
   startingWeight,
@@ -145,6 +146,48 @@ describe("suggestWeight", () => {
     const s = suggestWeight(exercise(), slot, profile(), history);
     expect(s.weight).toBe(135);
     expect(s.repTarget).toBe("beat-last");
+  });
+});
+
+describe("big-jump gate (light dumbbell / cable work)", () => {
+  const raise = exercise({ id: "db-lateral-raise", loadType: "per-side", increment: 5 });
+  const hiSlot = { repMin: 12, repMax: 15 };
+
+  it("holds 15 lb at 15 reps instead of jumping 33% to 20", () => {
+    const history = [entry([15, 15], [14, 13]), entry([15, 15], [15, 15])];
+    const s = suggestWeight(raise, hiSlot, profile(), history);
+    expect(s.weight).toBe(15);
+    expect(s.repTarget).toBe("beat-last");
+    // e1RM to do 11 reps at 20 lb = 27.33 -> 25 reps at 15 lb
+    expect(s.reason).toContain("25 reps");
+  });
+
+  it("jumps once the reps make the heavier weight reachable", () => {
+    const history = [entry([15, 15], [20, 20]), entry([15, 15], [25, 25])];
+    const s = suggestWeight(raise, hiSlot, profile(), history);
+    expect(s.weight).toBe(20);
+    expect(s.repTarget).toBe("repMin");
+  });
+
+  it("uses the weakest working set", () => {
+    const history = [entry([15, 15], [20, 20]), entry([15, 15], [25, 15])];
+    expect(suggestWeight(raise, hiSlot, profile(), history).weight).toBe(15);
+  });
+
+  it("doesn't change normal barbell progression", () => {
+    expect(jumpGate(exercise(), slot, 135, 10)).toBeNull();
+  });
+
+  it("ignores bodyweight / assisted movements", () => {
+    const pullup = exercise({ loadType: "bodyweight" });
+    expect(jumpGate(pullup, hiSlot, 5, 15)).toBeNull();
+  });
+
+  it("breaks the 15 -> 20 -> 15 loop after a deload", () => {
+    // Dropped back to 15 after missing at 20; hitting 15 x 15 again must not
+    // send it straight back to 20.
+    const history = [entry([15, 15], [15, 15]), entry([15, 15], [15, 15])];
+    expect(suggestWeight(raise, hiSlot, profile(), history).weight).toBe(15);
   });
 });
 
