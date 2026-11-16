@@ -38,12 +38,14 @@ an "Update available" toast — tap **Reload**.
 
 ## Training splits
 
-Three programs ship in `routine.json`, all balanced hypertrophy for an
+Several programs ship in `routine.json`, mostly balanced hypertrophy for an
 intermediate lifter and sharing one exercise library:
 
 - **Upper / Lower** (4 days) — default; each muscle 2x/week.
 - **Full Body** (3 days) — highest weekly frequency per muscle.
 - **Push / Pull / Legs** (3–6 days) — rolling cycle.
+- **Express 30** (4–5 days) — Upper/Lower in ~30 min: 5 exercises, 12 sets
+  per session (compounds 3 sets, finishers 2). For short morning sessions.
 
 Switch in **Settings → Program**. Switching restarts you at day 1 of the new
 split; your per-exercise history and weight suggestions carry over. Each
